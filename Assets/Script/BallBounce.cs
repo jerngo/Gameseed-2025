@@ -18,7 +18,7 @@ public class BallBounce : MonoBehaviour
         if (collision.collider.CompareTag(enemyTag))
         {
             Vector3 bounceDir = (Vector3.up + playerAreaDirection).normalized;
-            rb.linearVelocity = bounceDir * bounceForce;
+            //rb.linearVelocity = bounceDir * bounceForce;
         }
     }
 }

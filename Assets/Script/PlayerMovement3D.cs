@@ -4,6 +4,9 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement3D : MonoBehaviour
 {
+    [Header("Model")]
+    public Transform modelTransform;
+
     [Header("Movement")]
     public float moveSpeed = 5f;
     public float jumpForce = 7f;
@@ -36,7 +39,7 @@ public class PlayerMovement3D : MonoBehaviour
     private bool hitPressed;
 
     private bool isGrounded;
-    private Vector3 lastGroundMoveDir = Vector3.zero;
+    public Vector3 lastGroundMoveDir = Vector3.zero;
 
     private bool isDashing = false;
     private Vector3 dashDirection;
@@ -45,6 +48,10 @@ public class PlayerMovement3D : MonoBehaviour
 
     private bool hasRescueHit = false;
 
+    public float passHeight = 1.5f;
+    public float passSpeedFactor = 3f;
+
+    public bool isControlled;
     void Awake()
     {
         controls = new PlayerControls();
@@ -85,7 +92,7 @@ public class PlayerMovement3D : MonoBehaviour
                 dashDirection = -Vector3.right; // default dash ke kanan
             }
 
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             rb.AddForce(dashDirection * dashForce + Vector3.up * 2f, ForceMode.Impulse);
         }
 
@@ -123,8 +130,13 @@ public class PlayerMovement3D : MonoBehaviour
         // ─── GROUND HIT ───
         if (isGrounded)
         {
-            ballRb.linearVelocity = Vector3.zero;
-            ballRb.AddForce(Vector3.up * hitForce, ForceMode.Impulse);
+            GameObject otherPlayer = FindFirstObjectByType<PlayerSwitchManager>().GetOtherPlayer();
+
+            if (otherPlayer != null) { 
+                   PassBallToOtherPlayer(ballRb, this.gameObject);
+            }
+
+
             return;
         }
 
@@ -171,9 +183,8 @@ public class PlayerMovement3D : MonoBehaviour
         Rigidbody ballRb = hitBalls[0].attachedRigidbody;
         if (ballRb == null) return;
 
-        // Pukul bola ke atas
-        ballRb.linearVelocity = Vector3.zero;
-        ballRb.AddForce(Vector3.up * hitForce, ForceMode.Impulse);
+        PassBallToOtherPlayer(ballRb, this.gameObject);
+
     }
 
 
@@ -192,6 +203,27 @@ public class PlayerMovement3D : MonoBehaviour
         return result;
     }
 
+    void PassBallToOtherPlayer(Rigidbody ballRb, GameObject fromPlayer)
+    {
+        GameObject otherPlayer = FindFirstObjectByType<PlayerSwitchManager>().GetOtherPlayer();
+        if (otherPlayer == null || ballRb == null) return;
+
+        Vector3 start = ballRb.position;
+        Vector3 end = otherPlayer.transform.position + Vector3.up * passHeight;
+
+        float distance = Vector3.Distance(start, end);
+        float flightTime = Mathf.Clamp(distance / passSpeedFactor, 0.6f, 2f);
+
+        Vector3 force = CalculateParabolaVelocity(start, end, flightTime);
+
+        ballRb.linearVelocity = Vector3.zero;
+        ballRb.useGravity = true;
+        ballRb.AddForce(force, ForceMode.VelocityChange);
+
+        FindFirstObjectByType<PlayerSwitchManager>().OnPlayerHit(fromPlayer);
+    }
+
+
     /* ─────────────────────  FixedUpdate  ───────────────────── */
     void FixedUpdate()
     {
@@ -200,18 +232,47 @@ public class PlayerMovement3D : MonoBehaviour
 
         Vector3 moveDir;
 
-        if (isGrounded)
+        if (isControlled)
         {
-            moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
-            lastGroundMoveDir = moveDir.magnitude > 0.1f ? moveDir : Vector3.zero;
+            if (isGrounded)
+            {
+                moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
+                lastGroundMoveDir = moveDir.magnitude > 0.1f ? moveDir : Vector3.zero;
+            }
+            else
+            {
+                moveDir = lastGroundMoveDir * 0.2f;
+            }
+
+            Vector3 v = rb.linearVelocity;
+            rb.linearVelocity = new Vector3(moveDir.x * moveSpeed, v.y, moveDir.z * moveSpeed);
         }
         else
         {
-            moveDir = lastGroundMoveDir * 0.2f;
+            // Jika tidak dikontrol, hentikan pergerakan horizontal
+            Vector3 v = rb.linearVelocity;
+            rb.linearVelocity = new Vector3(0, v.y, 0);
+
+            // Reset arah gerakan terakhir agar tidak kebawa saat kontrol berpindah kembali
+            lastGroundMoveDir = Vector3.zero;
         }
 
-        Vector3 v = rb.linearVelocity;
-        rb.linearVelocity = new Vector3(moveDir.x * moveSpeed, v.y, moveDir.z * moveSpeed);
+        // ─── ROTATE MODEL ───
+        if (modelTransform != null)
+        {
+            Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+
+            if (horizontalVelocity.magnitude > 0.1f)
+            {
+                modelTransform.forward = horizontalVelocity.normalized;
+            }
+            else if (!isGrounded || isDashing)
+            {
+                modelTransform.forward = Vector3.left;
+            }
+        }
+
+
     }
 
 
