@@ -214,14 +214,19 @@ public class PlayerMovement3D : MonoBehaviour
     }
 
     public float minDashDistance = 1;
+    bool isDashingToBall = false;
+    Transform dashBallTarget;
+    float dashTime = 0f;
+    public float maxDashTime = 0.4f;
+
     void TryPassToBall()
     {
 
         Collider[] balls = Physics.OverlapSphere(transform.position, 10f, ballLayer);
         if (balls.Length == 0)
         {
-            // Tidak ada bola dekat, dash biasa
-            Vector3 dashDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
+            // Dash biasa
+            Vector3 dashDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
             if (dashDir.magnitude < 0.1f) dashDir = transform.forward;
 
             rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
@@ -236,13 +241,11 @@ public class PlayerMovement3D : MonoBehaviour
 
         if (IsGrounded())
         {
-            // Jika bola dekat dan cukup rendah, langsung pass
             if (Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer).Length > 0)
             {
                 Debug.Log("✅ Pass langsung saat di tanah");
                 PassBallInOwnArena();
             }
-            // Jika bola tinggi → lompat + siapkan pass
             else if (verticalOffset > 1.2f && distXZ < 1)
             {
                 Debug.Log("⬆️ Bola tinggi, lompat & siapkan pass");
@@ -252,16 +255,13 @@ public class PlayerMovement3D : MonoBehaviour
                 pendingPass = true;
                 targetPassBall = ball;
             }
-            // Jika bola agak jauh, dash ke arahnya
-            else if (distXZ < minDashDistance)
-            {
-                Vector3 dashDir = new Vector3(toBall.x, 0, toBall.z).normalized;
-                rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
-                Debug.Log("🏃 Dash ke arah bola");
-            }
             else
             {
-                Debug.Log("❓ Tidak dalam kondisi pass/dash yang cocok");
+                // Aktifkan mode dash ke bola
+                Debug.Log("🏃 Dash otomatis ke bola");
+                isDashingToBall = true;
+                dashBallTarget = ball;
+                dashTime = maxDashTime;
             }
         }
     }
@@ -374,6 +374,62 @@ public class PlayerMovement3D : MonoBehaviour
         {
             rb.linearVelocity = dashDirection * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
             return; // Jangan lanjut gerak normal selama dash
+        }
+
+        if (isDashing)
+        {
+            dashTimer -= Time.fixedDeltaTime;
+            if (dashTimer <= 0f)
+            {
+                isDashing = false;
+            }
+            else
+            {
+                rb.linearVelocity = dashDirection * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
+
+                // Cek apakah saat dash mengenai bola → langsung pass
+                Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+                if (hits.Length > 0)
+                {
+                    Debug.Log("✅ Passing bola saat dash");
+                    PassBallInOwnArena();
+                    isDashing = false; // opsional: batasi satu kali
+                }
+
+                return; // Jangan lanjut gerak normal selama dash
+            }
+        }
+
+        if (isDashingToBall)
+        {
+            dashTime -= Time.fixedDeltaTime;
+
+            if (dashBallTarget == null || dashTime <= 0f)
+            {
+                isDashingToBall = false;
+                return;
+            }
+
+            Vector3 dashDir = new Vector3(modelTransform.forward.x, 0, modelTransform.forward.z).normalized;
+
+
+            rb.linearVelocity = dashDir * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
+
+            // ⬇️ Tambahan ini
+            if (modelTransform != null && dashDir.sqrMagnitude > 0.01f)
+            {
+                modelTransform.forward = dashDir;
+            }
+
+            // Cek overlap bola untuk pass otomatis
+            if (Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer).Length > 0)
+            {
+                Debug.Log("✅ Pass otomatis saat dash ke bola");
+                PassBallInOwnArena();
+                //isDashingToBall = false;
+            }
+
+            return; // Selama dash aktif, abaikan kontrol biasa
         }
 
         // Gerakan
