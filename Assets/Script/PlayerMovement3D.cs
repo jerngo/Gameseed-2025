@@ -37,6 +37,10 @@ public class PlayerMovement3D : MonoBehaviour
     public float normalForce = 7f;
     public float longForce = 12f;
 
+    public float serveSpeed=7;
+    public float serveSpikeHeightMin = -0.2f;
+    public float serveSpikeHeightMax = 0f;
+
     [Header("Target Zones (9 Grid)")]
     public Transform[] ownZones = new Transform[9];
     public Transform[] enemyZones = new Transform[9];
@@ -47,7 +51,6 @@ public class PlayerMovement3D : MonoBehaviour
     private Rigidbody rb;
 
     private Vector2 moveInput;
-    private bool jumpPressed;
     private bool dashPressed;
     private bool hitPressed;
 
@@ -90,22 +93,29 @@ public class PlayerMovement3D : MonoBehaviour
         controls.Player.Move.canceled += _ => {
             if (isControlled) moveInput = Vector2.zero;
         };
-
-        controls.Player.Jump.performed += _ => {
-            if (CanReceiveInput()) jumpPressed = true;
-        };
         controls.Player.Dash.performed += _ => {
             if (CanReceiveInput()) dashPressed = true;
         };
         controls.Player.Hit.performed += _ => {
             if (CanReceiveInput()) hitPressed = true;
         };
+        controls.Player.Serve.performed += _ => {
+            if (isServing) StartServing();
+        };
 
+    }
+
+    public void StopMovement() {
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        lastGroundMoveDir = Vector3.zero;
     }
 
     private bool CanReceiveInput()
     {
         if (!isControlled) return false;
+
+        if (isServing) return false;
 
         // Jika sedang mode free for all, hanya karakter terdekat dengan bola yang terima input
         if (playerSwitchManager != null && playerSwitchManager.isControlAll)
@@ -307,16 +317,31 @@ public class PlayerMovement3D : MonoBehaviour
         // Semakin dekat -> Y lebih negatif (menukik), Semakin jauh -> Y lebih datar
         float minY = -0.8f; // tukikan tajam (jarak dekat)
         float maxY = -0.2f; // tukikan datar (jarak jauh)
-        float maxDistance = 10f; // batas jarak maksimum
+        float maxDistance = 10;
+
+        if (ballManager.isServingBall)
+        {
+            minY = serveSpikeHeightMin;
+            maxY = serveSpikeHeightMax;
+        }
+
         float t = Mathf.Clamp01(distanceXZ / maxDistance); // pastikan t antara 0–1
         float dynamicY = Mathf.Lerp(maxY, minY, 1 - t); // dibalik untuk efek terbalik
+
+       
 
         // Arahkan dan ubah arah Y jadi dinamis
         Vector3 direction = (target - ball.position).normalized;
         direction.y = dynamicY;
         direction.Normalize();
 
-        ballRb.linearVelocity = direction * smashSpeed;
+        if (!ballManager.isServingBall)
+        {
+            ballRb.linearVelocity = direction * smashSpeed;
+        }
+        else {
+            ballRb.linearVelocity = direction * serveSpeed;
+        }
 
         Debug.DrawLine(ball.position, target, Color.yellow, 2f);
         Debug.Log("🔥 Smash! Ke zona " + zoneIndex + ", jarak = " + distanceXZ.ToString("F2") + ", Y = " + dynamicY.ToString("F2"));
@@ -399,6 +424,8 @@ public class PlayerMovement3D : MonoBehaviour
 
     void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
     {
+        ballManager.isServingBall = false;
+
         Rigidbody rb = ball.GetComponent<Rigidbody>();
 
         rb.linearDamping = 0f;
@@ -643,6 +670,75 @@ public class PlayerMovement3D : MonoBehaviour
         else if (input.y < -0.3f) row = 2;
 
         return row * 3 + col;
+    }
+
+    //Serving
+    public bool isServing = false;
+    private int serveStage = 0; // 0 = belum lempar, 1 = sudah lempar ke atas, siap smash
+    public Transform ballHolder;
+    public float servingHeight=10;
+    public void SetServer() {
+        serveStage = 0;
+        isServing = true;
+
+        // Ambil bola
+        //Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+        //if (hits.Length == 0) return;
+
+        //playerSwitchManager.ball = hits[0].transform;
+        Rigidbody ballRb = playerSwitchManager.ball.GetComponent<Rigidbody>();
+        ballRb.linearVelocity = Vector3.zero;
+        ballRb.angularVelocity = Vector3.zero;
+        ballRb.useGravity = false;
+        ballRb.isKinematic = true;
+
+        // Tempelkan bola ke tangan
+        playerSwitchManager.ball.SetParent(ballHolder, true);
+        playerSwitchManager.ball.localPosition = Vector3.zero;
+        playerSwitchManager.ball.localRotation = Quaternion.identity;
+    }
+
+    void StartServing()
+    {
+        if (!playerSwitchManager.ball) return;
+
+        if (serveStage == 0)
+        {
+            // Lepaskan dari tangan dan lempar ke atas
+            playerSwitchManager.ball.SetParent(null);
+            Rigidbody ballRb = playerSwitchManager.ball.GetComponent<Rigidbody>();
+            ballRb.isKinematic = false;
+            ballRb.useGravity = true;
+            ballRb.linearVelocity = Vector3.up * servingHeight; // lempar ke atas
+            serveStage = 1;
+        }
+        else
+        {
+            // Pukul ke arah lawan
+            hitPressed = true;
+            ballManager.isServingBall = true;
+            isServing = false;
+            serveStage = 0;
+        }
+    }
+
+    void PassBallInPlace()
+    {
+        ballManager.arenaSide = ArenaSide;
+
+        Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+        if (hits.Length == 0) return;
+
+        Transform ball = hits[0].transform;
+
+        Vector3 targetPosition = hitPoint.position;
+
+        Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+        ballRb.linearVelocity = Vector3.zero;
+        ballRb.angularVelocity = Vector3.zero;
+        ballRb.useGravity = false;
+
+        ball.position = targetPosition;
     }
 
     void OnDrawGizmosSelected()

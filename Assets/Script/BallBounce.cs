@@ -12,6 +12,8 @@ public class BallBounce : MonoBehaviour
 
     PlayerSwitchManager playerswitchManager;
 
+    public bool isServingBall=false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -26,6 +28,7 @@ public class BallBounce : MonoBehaviour
             rb.linearVelocity = bounceDir * bounceForce;
             arenaSide = "Right";
             playerswitchManager.EnableAllControl();
+            isServingBall = false;
         }
     }
 }

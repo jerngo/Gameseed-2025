@@ -22,8 +22,21 @@ public class PlayerSwitchManager : MonoBehaviour
         currentPlayer = playerA;
         otherPlayer = playerB;
 
-        EnableController(currentPlayer, true);
-        EnableController(otherPlayer, false);
+        EnableController(playerA, false);
+        EnableController(playerB, true);
+
+        otherPlayer.GetComponent<PlayerMovement3D>().SetServer();
+    }
+
+    private void Update()
+    {
+        //Debug ulang serve nanti hapus
+        if(Input.GetKey(KeyCode.R)){
+            EnableController(playerA, false);
+            EnableController(playerB, true);
+            playerB.GetComponent<PlayerMovement3D>().SetServer();
+
+        }
     }
 
     void EnableController(GameObject player, bool enable)
@@ -34,6 +47,7 @@ public class PlayerSwitchManager : MonoBehaviour
             //controller.enabled = enable;
             controller.activeSign.SetActive(enable);
             controller.isControlled = enable;
+            controller.StopMovement();
         }
     }
 
@@ -117,6 +131,7 @@ public class PlayerSwitchManager : MonoBehaviour
 
         if (newController == playerA)
         {
+            
             EnableController(playerA, false);
             EnableController(playerB, true);
             currentPlayer = playerB;
