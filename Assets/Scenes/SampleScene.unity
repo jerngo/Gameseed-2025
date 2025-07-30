@@ -1086,7 +1086,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &204035781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2435,7 +2435,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1a6c290741d2e74bbd2f1bcdbf12a26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoMoveSpeed: 5
+  maxChaseDuration: 1.5
   modelTransform: {fileID: 1708210189}
+  smashHeightThreshold: 7.5
+  smashSpeed: 25
   moveSpeed: 5
   jumpForce: 7
   dashForce: 7
@@ -2450,16 +2454,26 @@ MonoBehaviour:
   lobForce: 12
   normalForce: 7
   longForce: 12
-  targetZones:
-  - {fileID: 843118004}
-  - {fileID: 1145209473}
-  - {fileID: 1096168023}
-  - {fileID: 1195396019}
-  - {fileID: 514657073}
-  - {fileID: 2099188166}
-  - {fileID: 2061470190}
-  - {fileID: 906880817}
-  - {fileID: 1844565011}
+  ownZones:
+  - {fileID: 956247802}
+  - {fileID: 892288687}
+  - {fileID: 521175372}
+  - {fileID: 2070681170}
+  - {fileID: 230691754}
+  - {fileID: 1214011695}
+  - {fileID: 1037772904}
+  - {fileID: 53395087}
+  - {fileID: 671984279}
+  enemyZones:
+  - {fileID: 956247802}
+  - {fileID: 892288687}
+  - {fileID: 521175372}
+  - {fileID: 2070681170}
+  - {fileID: 230691754}
+  - {fileID: 1214011695}
+  - {fileID: 1037772904}
+  - {fileID: 53395087}
+  - {fileID: 671984279}
   ballLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2467,6 +2481,7 @@ MonoBehaviour:
   passHeight: 4
   passSpeedFactor: 1
   isControlled: 0
+  minDashDistance: 1
 --- !u!54 &509774255
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6042,7 +6057,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1a6c290741d2e74bbd2f1bcdbf12a26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoMoveSpeed: 5
+  maxChaseDuration: 1.5
   modelTransform: {fileID: 646588118}
+  smashHeightThreshold: 5
+  smashSpeed: 25
   moveSpeed: 5
   jumpForce: 7
   dashForce: 7
@@ -6053,11 +6072,21 @@ MonoBehaviour:
     m_Bits: 64
   hitPoint: {fileID: 1280868911}
   hitRadius: 1
-  hitForce: 10
-  lobForce: 12
+  hitForce: 1
+  lobForce: 5
   normalForce: 7
   longForce: 12
-  targetZones:
+  ownZones:
+  - {fileID: 956247802}
+  - {fileID: 892288687}
+  - {fileID: 521175372}
+  - {fileID: 2070681170}
+  - {fileID: 230691754}
+  - {fileID: 1214011695}
+  - {fileID: 1037772904}
+  - {fileID: 53395087}
+  - {fileID: 671984279}
+  enemyZones:
   - {fileID: 843118004}
   - {fileID: 1145209473}
   - {fileID: 1096168023}
@@ -6074,6 +6103,7 @@ MonoBehaviour:
   passHeight: 4
   passSpeedFactor: 1
   isControlled: 1
+  minDashDistance: 3
 --- !u!1 &1544172233
 GameObject:
   m_ObjectHideFlags: 0
@@ -6752,7 +6782,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1690922998
 MonoBehaviour:
   m_ObjectHideFlags: 0
