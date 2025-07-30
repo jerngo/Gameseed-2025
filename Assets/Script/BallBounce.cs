@@ -10,9 +10,12 @@ public class BallBounce : MonoBehaviour
 
     public string arenaSide;
 
+    PlayerSwitchManager playerswitchManager;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        playerswitchManager = FindFirstObjectByType<PlayerSwitchManager>();
     }
 
     void OnCollisionEnter(Collision collision)
@@ -22,6 +25,7 @@ public class BallBounce : MonoBehaviour
             Vector3 bounceDir = (Vector3.up + playerAreaDirection).normalized;
             rb.linearVelocity = bounceDir * bounceForce;
             arenaSide = "Right";
+            playerswitchManager.EnableAllControl();
         }
     }
 }

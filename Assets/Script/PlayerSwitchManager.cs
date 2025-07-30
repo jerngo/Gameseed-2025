@@ -10,7 +10,7 @@ public class PlayerSwitchManager : MonoBehaviour
     public int hitCount = 0;
     public bool isControlAll = false;
 
-
+    public Transform ball;
 
     public GameObject GetOtherPlayer()
     {
@@ -31,12 +31,21 @@ public class PlayerSwitchManager : MonoBehaviour
         var controller = player.GetComponent<PlayerMovement3D>();
         if (controller != null)
         {
-            controller.enabled = enable;
+            //controller.enabled = enable;
+            controller.activeSign.SetActive(enable);
             controller.isControlled = enable;
         }
     }
 
-    void EnableAllControl() {
+    void DisableAllControl()
+    {
+        isControlAll = false;
+
+        EnableController(currentPlayer, false);
+        EnableController(otherPlayer, false);
+    }
+
+    public void EnableAllControl() {
         isControlAll = true;
 
         EnableController(currentPlayer, true);
@@ -65,12 +74,26 @@ public class PlayerSwitchManager : MonoBehaviour
         hitCount = 0;
     }
 
-    public GameObject GetNearestPlayerToBall(Transform ball)
+    public bool IsClosestToBall(GameObject player)
     {
-        float distA = Vector3.Distance(playerA.transform.position, ball.position);
-        float distB = Vector3.Distance(playerB.transform.position, ball.position);
+        if (ball == null) return false;
 
-        return (distA <= distB) ? playerA : playerB;
+        Vector2 playerXZ = new Vector2(player.transform.position.x, player.transform.position.z);
+        Vector2 otherXZ = new Vector2(GetOtherPlayerObject(player).transform.position.x, GetOtherPlayerObject(player).transform.position.z);
+        Vector2 ballXZ = new Vector2(ball.position.x, ball.position.z);
+
+        float distPlayer = Vector2.Distance(playerXZ, ballXZ);
+        float distOther = Vector2.Distance(otherXZ, ballXZ);
+
+        return distPlayer <= distOther;
+    }
+
+
+    private GameObject GetOtherPlayerObject(GameObject current)
+    {
+        if (current == playerA) return playerB;
+        if (current == playerB) return playerA;
+        return null;
     }
 
     void SwitchControl()
@@ -94,17 +117,17 @@ public class PlayerSwitchManager : MonoBehaviour
 
         if (newController == playerA)
         {
-            EnableController(playerA, true);
-            EnableController(playerB, false);
-            currentPlayer = playerA;
-            otherPlayer = playerB;
-        }
-        else
-        {
             EnableController(playerA, false);
             EnableController(playerB, true);
             currentPlayer = playerB;
             otherPlayer = playerA;
+        }
+        else
+        {
+            EnableController(playerA, true);
+            EnableController(playerB, false);
+            currentPlayer = playerA;
+            otherPlayer = playerB;
         }
     }
 

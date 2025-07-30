@@ -75,18 +75,45 @@ public class PlayerMovement3D : MonoBehaviour
 
     BallBounce ballManager;
     PlayerSwitchManager playerSwitchManager;
+
+    public Transform DefaultPosition;
+    public GameObject activeSign;
     void Awake()
     {
         playerSwitchManager = FindFirstObjectByType<PlayerSwitchManager>();
         controls = new PlayerControls();
         ballManager = FindFirstObjectByType<BallBounce>();
 
-        controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        controls.Player.Move.canceled += _ => moveInput = Vector2.zero;
+        controls.Player.Move.performed += ctx => {
+            if (isControlled) moveInput = ctx.ReadValue<Vector2>();
+        };
+        controls.Player.Move.canceled += _ => {
+            if (isControlled) moveInput = Vector2.zero;
+        };
 
-        controls.Player.Jump.performed += _ => jumpPressed = true;
-        controls.Player.Dash.performed += _ => dashPressed = true;
-        controls.Player.Hit.performed += _ => hitPressed = true;
+        controls.Player.Jump.performed += _ => {
+            if (CanReceiveInput()) jumpPressed = true;
+        };
+        controls.Player.Dash.performed += _ => {
+            if (CanReceiveInput()) dashPressed = true;
+        };
+        controls.Player.Hit.performed += _ => {
+            if (CanReceiveInput()) hitPressed = true;
+        };
+
+    }
+
+    private bool CanReceiveInput()
+    {
+        if (!isControlled) return false;
+
+        // Jika sedang mode free for all, hanya karakter terdekat dengan bola yang terima input
+        if (playerSwitchManager != null && playerSwitchManager.isControlAll)
+        {
+            return playerSwitchManager.IsClosestToBall(gameObject);
+        }
+
+        return true;
     }
 
     void OnEnable() => controls.Enable();
@@ -141,13 +168,36 @@ public class PlayerMovement3D : MonoBehaviour
     }
 
 
-    void Update()
-    {
+    void CharacterAction() {
         if (!isControlled) return;
-
-        if (IsGrounded())
+        if (hitPressed)
         {
-            if (hitPressed)
+            hitPressed = false;
+
+            Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+            if (hits.Length > 0)
+            {
+                Debug.Log("Pukul langsung saat di tanah");
+                HitBallToOtherSide();
+            }
+            else
+            {
+                Debug.Log("Lompat karena tidak ada bola");
+                rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                StartAutoChaseToBall();
+            }
+        }
+
+        if (dashPressed)
+        {
+            dashPressed = false;
+
+            if (playerSwitchManager.hitCount < 2)
+            {
+                TryPassToBall();
+
+            }
+            else
             {
                 hitPressed = false;
 
@@ -165,48 +215,44 @@ public class PlayerMovement3D : MonoBehaviour
                 }
             }
 
-            if (dashPressed)
-            {
-                dashPressed = false;
+        }
+    }
 
-                if (playerSwitchManager.hitCount < 2) {
-                    TryPassToBall();
-                    
+    void Update()
+    {
+        if (isControlled) {
+            if (IsGrounded())
+            {
+                if (!playerSwitchManager.isControlAll)
+                {
+                    CharacterAction();
                 }
                 else {
-                    hitPressed = false;
-
-                    Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
-                    if (hits.Length > 0)
+                    if (playerSwitchManager.IsClosestToBall(gameObject))
                     {
-                        Debug.Log("Pukul langsung saat di tanah");
-                        HitBallToOtherSide();
-                    }
-                    else
-                    {
-                        Debug.Log("Lompat karena tidak ada bola");
-                        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
-                        StartAutoChaseToBall();
+                        Debug.Log(gameObject.name+" yang paling dekat = " + playerSwitchManager.IsClosestToBall(gameObject));
+                        CharacterAction();
                     }
                 }
 
+                
             }
-        }
 
-        if (isJumping && rb.linearVelocity.y < -0.1f)
-        {
-            hasHitDuringJump = true;
-        }
+            if (isJumping && rb.linearVelocity.y < -0.1f)
+            {
+                hasHitDuringJump = true;
+            }
 
-        if (IsGrounded())
-        {
-            isJumping = false;
-            hasHitDuringJump = false;
-        }
+            if (IsGrounded())
+            {
+                isJumping = false;
+                hasHitDuringJump = false;
+            }
 
-        if (IsGrounded() && isAutoChasingBall)
-        {
-            //isAutoChasingBall = false;
+            if (IsGrounded() && isAutoChasingBall)
+            {
+                //isAutoChasingBall = false;
+            }
         }
     }
 
@@ -226,6 +272,7 @@ public class PlayerMovement3D : MonoBehaviour
     {
         ballManager.arenaSide = "";
         playerSwitchManager.hitCount = 0;
+        playerSwitchManager.ReturnToSingleControl(this.gameObject);
 
         Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
         if (hits.Length == 0) return;
@@ -242,6 +289,7 @@ public class PlayerMovement3D : MonoBehaviour
     {
         ballManager.arenaSide = "";
         playerSwitchManager.hitCount = 0;
+        playerSwitchManager.ReturnToSingleControl(this.gameObject);
 
         int zoneIndex = GetZoneIndexFromInput(moveInput);
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
@@ -251,16 +299,30 @@ public class PlayerMovement3D : MonoBehaviour
         Rigidbody ballRb = ball.GetComponent<Rigidbody>();
         ballRb.useGravity = true;
 
-        // Arahkan langsung, menukik cepat
+        // Hitung jarak horizontal (XZ) antara bola dan target
+        Vector2 ballXZ = new Vector2(ball.position.x, ball.position.z);
+        Vector2 targetXZ = new Vector2(target.x, target.z);
+        float distanceXZ = Vector2.Distance(ballXZ, targetXZ);
+
+        // Semakin dekat -> Y lebih negatif (menukik), Semakin jauh -> Y lebih datar
+        float minY = -0.8f; // tukikan tajam (jarak dekat)
+        float maxY = -0.2f; // tukikan datar (jarak jauh)
+        float maxDistance = 10f; // batas jarak maksimum
+        float t = Mathf.Clamp01(distanceXZ / maxDistance); // pastikan t antara 0–1
+        float dynamicY = Mathf.Lerp(maxY, minY, 1 - t); // dibalik untuk efek terbalik
+
+        // Arahkan dan ubah arah Y jadi dinamis
         Vector3 direction = (target - ball.position).normalized;
-        direction.y = -0.3f; // bikin menukik, sesuaikan kalau terlalu tajam
+        direction.y = dynamicY;
         direction.Normalize();
 
         ballRb.linearVelocity = direction * smashSpeed;
 
         Debug.DrawLine(ball.position, target, Color.yellow, 2f);
-        Debug.Log("🔥 Smash! Ke zona " + zoneIndex);
+        Debug.Log("🔥 Smash! Ke zona " + zoneIndex + ", jarak = " + distanceXZ.ToString("F2") + ", Y = " + dynamicY.ToString("F2"));
     }
+
+
 
 
     void PassBallInOwnArena()
@@ -277,6 +339,8 @@ public class PlayerMovement3D : MonoBehaviour
 
         Vector3 target = ownZones[zoneIndex].position;
         LaunchBallToTarget(ball, target, lobForce);
+
+        playerSwitchManager.ReturnToSingleControl(this.gameObject);
     }
 
     public float minDashDistance = 1;
@@ -376,7 +440,16 @@ public class PlayerMovement3D : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isControlled) return;
+        if (!isControlled)
+        {
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+
+            isDashing = false;
+            isDashingToBall = false;
+            isAutoChasingBall = false;
+
+            return;
+        }
 
         // Cek apakah sedang melompat
         if (!IsGrounded() && rb.linearVelocity.y > 0.1f && !isJumping)
