@@ -7,7 +7,10 @@ public class PlayerSwitchManager : MonoBehaviour
 
     private GameObject currentPlayer;
     private GameObject otherPlayer;
-    private int hitCount = 0;
+    public int hitCount = 0;
+    public bool isControlAll = false;
+
+
 
     public GameObject GetOtherPlayer()
     {
@@ -33,6 +36,14 @@ public class PlayerSwitchManager : MonoBehaviour
         }
     }
 
+    void EnableAllControl() {
+        isControlAll = true;
+
+        EnableController(currentPlayer, true);
+        EnableController(otherPlayer, true);
+
+    }
+
     void StopMovement(GameObject player)
     {
         var rb = player.GetComponent<Rigidbody>();
@@ -49,17 +60,17 @@ public class PlayerSwitchManager : MonoBehaviour
         }
     }
 
-    public void OnPlayerHit(GameObject hitter)
-    {
-        if (hitter != currentPlayer) return;
-
-        hitCount++;
-        SwitchControl();
-    }
-
     public void OnEnemyTouch()
     {
         hitCount = 0;
+    }
+
+    public GameObject GetNearestPlayerToBall(Transform ball)
+    {
+        float distA = Vector3.Distance(playerA.transform.position, ball.position);
+        float distB = Vector3.Distance(playerB.transform.position, ball.position);
+
+        return (distA <= distB) ? playerA : playerB;
     }
 
     void SwitchControl()
@@ -76,4 +87,25 @@ public class PlayerSwitchManager : MonoBehaviour
         currentPlayer = otherPlayer;
         otherPlayer = temp;
     }
+
+    public void ReturnToSingleControl(GameObject newController)
+    {
+        isControlAll = false;
+
+        if (newController == playerA)
+        {
+            EnableController(playerA, true);
+            EnableController(playerB, false);
+            currentPlayer = playerA;
+            otherPlayer = playerB;
+        }
+        else
+        {
+            EnableController(playerA, false);
+            EnableController(playerB, true);
+            currentPlayer = playerB;
+            otherPlayer = playerA;
+        }
+    }
+
 }

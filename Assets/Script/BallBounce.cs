@@ -8,6 +8,8 @@ public class BallBounce : MonoBehaviour
 
     private Rigidbody rb;
 
+    public string arenaSide;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -19,6 +21,7 @@ public class BallBounce : MonoBehaviour
         {
             Vector3 bounceDir = (Vector3.up + playerAreaDirection).normalized;
             rb.linearVelocity = bounceDir * bounceForce;
+            arenaSide = "Right";
         }
     }
 }

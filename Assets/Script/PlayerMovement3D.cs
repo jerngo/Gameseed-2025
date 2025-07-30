@@ -71,9 +71,15 @@ public class PlayerMovement3D : MonoBehaviour
     private bool pendingPass = false;
     private Transform targetPassBall = null;
 
+    public string ArenaSide;
+
+    BallBounce ballManager;
+    PlayerSwitchManager playerSwitchManager;
     void Awake()
     {
+        playerSwitchManager = FindFirstObjectByType<PlayerSwitchManager>();
         controls = new PlayerControls();
+        ballManager = FindFirstObjectByType<BallBounce>();
 
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += _ => moveInput = Vector2.zero;
@@ -90,18 +96,48 @@ public class PlayerMovement3D : MonoBehaviour
 
     void StartAutoChaseToBall()
     {
-        Collider[] balls = Physics.OverlapSphere(transform.position, 30f, ballLayer);
-        if (balls.Length > 0)
-        {
-            Transform ball = balls[0].transform;
+        if (ballManager.arenaSide == ArenaSide) {
+            Collider[] balls = Physics.OverlapSphere(transform.position, 30f, ballLayer);
+            if (balls.Length > 0)
+            {
+                Transform ball = balls[0].transform;
 
-            // Ambil posisi XZ bola sebagai target
-            targetBallXZPos = new Vector3(ball.position.x, transform.position.y, ball.position.z);
-            isAutoChasingBall = true;
-            chaseTimer = maxChaseDuration;
+                // Ambil posisi XZ bola sebagai target
+                targetBallXZPos = PredictBallLandingPosition(ball.GetComponent<Rigidbody>());
+                isAutoChasingBall = true;
+                chaseTimer = maxChaseDuration;
 
-            Debug.Log("🔵 Auto kejar bola aktif: " + targetBallXZPos);
+                Debug.Log("🔵 Auto kejar bola aktif: " + targetBallXZPos);
+            }
         }
+       
+    }
+
+    Vector3 PredictBallLandingPosition(Rigidbody ballRb)
+    {
+        Vector3 velocity = ballRb.linearVelocity;
+        Vector3 position = ballRb.position;
+
+        float time = 0f;
+        float timeStep = 0.05f;
+        float maxTime = 3f;
+        Vector3 gravity = Physics.gravity;
+
+        for (; time < maxTime; time += timeStep)
+        {
+            // Prediksi posisi di masa depan
+            Vector3 futurePos = position + velocity * time + 0.5f * gravity * time * time;
+
+            // Jika bola mencapai atau melewati permukaan tanah
+            if (futurePos.y <= groundCheck.position.y + 0.1f)
+            {
+                // Ambil posisi XZ saja, pakai tinggi karakter
+                return new Vector3(futurePos.x, transform.position.y, futurePos.z);
+            }
+        }
+
+        // Jika tidak ketemu, fallback ke posisi bola saat ini
+        return new Vector3(position.x, transform.position.y, position.z);
     }
 
 
@@ -132,7 +168,28 @@ public class PlayerMovement3D : MonoBehaviour
             if (dashPressed)
             {
                 dashPressed = false;
-                TryPassToBall();
+
+                if (playerSwitchManager.hitCount < 2) {
+                    TryPassToBall();
+                    
+                }
+                else {
+                    hitPressed = false;
+
+                    Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+                    if (hits.Length > 0)
+                    {
+                        Debug.Log("Pukul langsung saat di tanah");
+                        HitBallToOtherSide();
+                    }
+                    else
+                    {
+                        Debug.Log("Lompat karena tidak ada bola");
+                        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                        StartAutoChaseToBall();
+                    }
+                }
+
             }
         }
 
@@ -149,7 +206,7 @@ public class PlayerMovement3D : MonoBehaviour
 
         if (IsGrounded() && isAutoChasingBall)
         {
-            isAutoChasingBall = false;
+            //isAutoChasingBall = false;
         }
     }
 
@@ -167,6 +224,9 @@ public class PlayerMovement3D : MonoBehaviour
 
     void HitBallToOtherSide()
     {
+        ballManager.arenaSide = "";
+        playerSwitchManager.hitCount = 0;
+
         Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
         if (hits.Length == 0) return;
 
@@ -180,6 +240,9 @@ public class PlayerMovement3D : MonoBehaviour
 
     void SmashBall(Transform ball)
     {
+        ballManager.arenaSide = "";
+        playerSwitchManager.hitCount = 0;
+
         int zoneIndex = GetZoneIndexFromInput(moveInput);
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
 
@@ -202,6 +265,9 @@ public class PlayerMovement3D : MonoBehaviour
 
     void PassBallInOwnArena()
     {
+        ballManager.arenaSide = ArenaSide;
+        playerSwitchManager.hitCount++;
+
         Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
         if (hits.Length == 0) return;
 
