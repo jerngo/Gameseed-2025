@@ -122,24 +122,30 @@ public class PlayerMovement3D : MonoBehaviour
     public void TeleChartoDefaultPos() {
         Vector3 targetPos = DefaultPosition.position;
         rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
         isAutoChasingBall = false;
         // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
         Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
 
         transform.position = newPos;
         modelTransform.forward = Vector3.left;
+        rb.isKinematic = false;
     }
 
     public void TeleChartoHere(Transform target)
     {
         Vector3 targetPos = target.position;
         rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
         isAutoChasingBall = false;
         // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
         Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
 
         transform.position = newPos;
         modelTransform.forward = Vector3.left;
+        rb.isKinematic = false;
     }
 
     private bool CanReceiveInput()
@@ -342,6 +348,9 @@ public class PlayerMovement3D : MonoBehaviour
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
 
         Vector3 target = enemyZones[zoneIndex].position;
+
+        moveInput = Vector2.zero;
+
         LaunchBallToTarget(ball, target, hitForce);
     }
 
@@ -358,6 +367,8 @@ public class PlayerMovement3D : MonoBehaviour
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
 
         Vector3 target = enemyZones[zoneIndex].position;
+
+        moveInput = Vector2.zero;
 
         Rigidbody ballRb = ball.GetComponent<Rigidbody>();
         ballRb.useGravity = true;
@@ -410,6 +421,7 @@ public class PlayerMovement3D : MonoBehaviour
         ballManager.LastSideToHitTheBall = ArenaSide;
         playerSwitchManager.hitCount++;
 
+        npcSwitchManager.hitCount = 0;
         npcSwitchManager.EnableAllControl();
 
         Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
@@ -418,6 +430,8 @@ public class PlayerMovement3D : MonoBehaviour
         Transform ball = hits[0].transform;
         int zoneIndex = GetZoneIndexFromInput(moveInput);
         if (zoneIndex < 0 || zoneIndex >= ownZones.Length || ownZones[zoneIndex] == null) return;
+
+        moveInput = Vector2.zero;
 
         Vector3 target = ownZones[zoneIndex].position;
         LaunchBallToTarget(ball, target, lobForce);
@@ -679,7 +693,7 @@ public class PlayerMovement3D : MonoBehaviour
         }
 
         // Gerakan
-        Vector3 moveDir;
+        Vector3 moveDir= new Vector3(0, 0, 0);
         if (IsGrounded())
         {
             moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
@@ -687,7 +701,7 @@ public class PlayerMovement3D : MonoBehaviour
         }
         else
         {
-            moveDir = lastGroundMoveDir * 0.2f;
+            //moveDir = lastGroundMoveDir * 0.2f;
         }
 
        
@@ -760,7 +774,7 @@ public class PlayerMovement3D : MonoBehaviour
     public void SetServer() {
         serveStage = 0;
         isServing = true;
-        gamerulemanager.isServingRound = false;
+        
         // Ambil bola
         //Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
         //if (hits.Length == 0) return;
@@ -792,6 +806,7 @@ public class PlayerMovement3D : MonoBehaviour
             ballRb.linearVelocity = Vector3.up * servingHeight; // lempar ke atas
             serveStage = 1;
             gamerulemanager.barrierServe.SetActive(false);
+            gamerulemanager.isServingRound = false;
         }
         else
         {
@@ -867,6 +882,8 @@ public class PlayerMovement3D : MonoBehaviour
         Vector3 target = enemyZones[zoneIndex].position;
         Rigidbody ballRb = ball.GetComponent<Rigidbody>();
         ballRb.useGravity = true;
+
+        moveInput = Vector2.zero;
 
         Vector3 direction = (target - ball.position).normalized;
         direction.y = Mathf.Clamp(direction.y, -0.3f, 0.2f); // bisa disesuaikan

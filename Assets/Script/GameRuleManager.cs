@@ -14,7 +14,14 @@ public class GameRuleManager : MonoBehaviour
     public GameObject enemyBackline;
 
     public Transform playerServerSpawnPos;
+
+    public Transform playerBacklineSpawnPos;
+    public Transform playerFrontlineSpawnPos;
+
     public Transform enemyServerSpawnPos;
+
+    public Transform enemyBacklineSpawnPos;
+    public Transform enemyFrontlineSpawnPos;
 
     public GameObject barrierServe;
 
@@ -34,6 +41,7 @@ public class GameRuleManager : MonoBehaviour
     int enemyScore = 0;
 
     PlayerSwitchManager playerswitchManager;
+    NPCManager enemyswitchManager;
     BallBounce ballbounce;
 
     public bool isServingRound;
@@ -44,9 +52,15 @@ public class GameRuleManager : MonoBehaviour
     void Start()
     {
         playerswitchManager = FindFirstObjectByType<PlayerSwitchManager>();
+        enemyswitchManager = FindFirstObjectByType<NPCManager>();
         ballbounce = FindFirstObjectByType<BallBounce>();
 
-        StartCoroutine(InitGame(0.5f, true));
+        
+    }
+
+    private void Awake()
+    {
+        StartCoroutine(InitGame(3f, true));
     }
 
     IEnumerator InitGame(float duration, bool serveFromPlayer)
@@ -73,18 +87,34 @@ public class GameRuleManager : MonoBehaviour
     }
 
     void PlayerSetServe() {
+        playerswitchManager.hitCount = 0;
+        enemyswitchManager.hitCount = 0;
+
         suarapluit.Play();
         isServingRound = true;
 
-        playerswitchManager.PlayerServe();
         ballbounce.isAlreadyScored = false;
 
-        barrierServe.SetActive(true);
-        playerBackline.GetComponent<PlayerMovement3D>().TeleChartoHere(playerServerSpawnPos);
         playerBackline.GetComponent<PlayerMovement3D>().TeleChartoHere(playerServerSpawnPos);
         playerFrontline.GetComponent<PlayerMovement3D>().TeleChartoDefaultPos();
         enemyBackline.GetComponent<NPCMovement3D>().TeleChartoDefaultPos();
         enemyFrontline.GetComponent<NPCMovement3D>().TeleChartoDefaultPos();
+
+        enemyBackline.GetComponent<NPCMovement3D>().isControlled=false;
+        enemyFrontline.GetComponent<NPCMovement3D>().isControlled = false;
+
+        barrierServe.SetActive(true);
+        
+        playerswitchManager.PlayerServe();
+    }
+
+    public void TeleChartoHere(Transform thingtotele, Transform target)
+    {
+        Vector3 targetPos = target.position;
+        // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
+        Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
+
+        thingtotele.position = newPos;
     }
 
     void EnemySetServe() { 
@@ -195,5 +225,32 @@ public class GameRuleManager : MonoBehaviour
         }
     }
 
+    public Vector3 PredictBallLandingPosition()
+    {
+        Rigidbody ballRb = ballbounce.GetComponent<Rigidbody>();
 
+        Vector3 velocity = ballRb.linearVelocity;
+        Vector3 position = ballRb.position;
+
+        float time = 0f;
+        float timeStep = 0.05f;
+        float maxTime = 3f;
+        Vector3 gravity = Physics.gravity;
+
+        for (; time < maxTime; time += timeStep)
+        {
+            // Prediksi posisi di masa depan
+            Vector3 futurePos = position + velocity * time + 0.5f * gravity * time * time;
+
+            // Jika bola mencapai atau melewati permukaan tanah
+            if (futurePos.y <=  0.65)
+            {
+                // Ambil posisi XZ saja, pakai tinggi karakter
+                return new Vector3(futurePos.x, transform.position.y, futurePos.z);
+            }
+        }
+
+        // Jika tidak ketemu, fallback ke posisi bola saat ini
+        return new Vector3(position.x, transform.position.y, position.z);
+    }
 }

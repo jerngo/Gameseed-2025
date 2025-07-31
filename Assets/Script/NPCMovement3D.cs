@@ -84,6 +84,8 @@ public class NPCMovement3D : MonoBehaviour
     public Transform DefaultPosition;
     public GameObject activeSign;
 
+    private Vector3 smoothTargetPos;
+
     public bool isBotControlled = false;
     void Awake()
     {
@@ -92,6 +94,7 @@ public class NPCMovement3D : MonoBehaviour
         //controls = new PlayerControls();
         ballManager = FindFirstObjectByType<BallBounce>();
         gamerulemanager = FindFirstObjectByType<GameRuleManager>();
+        smoothTargetPos = transform.position;
 
         //controls.Player.Move.performed += ctx => {
         //    if (isControlled) moveInput = ctx.ReadValue<Vector2>();
@@ -119,30 +122,37 @@ public class NPCMovement3D : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         lastGroundMoveDir = Vector3.zero;
+        isMovingToBall = false;
     }
 
     public void TeleChartoDefaultPos()
     {
         Vector3 targetPos = DefaultPosition.position;
         rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
         isAutoChasingBall = false;
         // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
         Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
 
         transform.position = newPos;
         modelTransform.forward = Vector3.right;
+        rb.isKinematic = false;
     }
 
     public void TeleChartoHere(Transform target)
     {
         Vector3 targetPos = target.position;
         rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
         isAutoChasingBall = false;
         // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
         Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
 
         transform.position = newPos;
         modelTransform.forward = Vector3.right;
+        rb.isKinematic = false;
     }
 
     private bool CanReceiveInput()
@@ -169,19 +179,21 @@ public class NPCMovement3D : MonoBehaviour
 
     void StartAutoChaseToBall()
     {
-        if (ballManager.arenaSide == ArenaSide)
-        {
-            Collider[] balls = Physics.OverlapSphere(transform.position, 30f, ballLayer);
-            if (balls.Length > 0)
+        if (isAutoChasingBall == false) {
+            if (ballManager.arenaSide == ArenaSide)
             {
-                Transform ball = balls[0].transform;
+                Collider[] balls = Physics.OverlapSphere(transform.position, 20f, ballLayer);
+                if (balls.Length > 0)
+                {
+                    Transform ball = balls[0].transform;
 
-                // Ambil posisi XZ bola sebagai target
-                targetBallXZPos = PredictBallLandingPosition(ball.GetComponent<Rigidbody>());
-                isAutoChasingBall = true;
-                chaseTimer = maxChaseDuration;
+                    // Ambil posisi XZ bola sebagai target
+                    targetBallXZPos = PredictBallLandingPosition(ball.GetComponent<Rigidbody>());
+                    isAutoChasingBall = true;
+                    chaseTimer = maxChaseDuration;
 
-                Debug.Log("🔵 Auto kejar bola aktif: " + targetBallXZPos);
+                    Debug.Log("🔵 Auto kejar bola aktif: " + targetBallXZPos);
+                }
             }
         }
 
@@ -280,55 +292,40 @@ public class NPCMovement3D : MonoBehaviour
             }
         }
 
-        if (isBotControlled && isControlled)
+        if (isBotControlled)
         {
-            if (!isAutoChasingBall) // ⛔ jangan lakukan decision logic saat auto-chase
+            if (isControlled) 
             {
-                BotDecision();
-
-
+                if (!gamerulemanager.isServingRound) { 
+                    BotDecision();
+                }
+            }
+            else
+            {
+                MoveToDefaultPas();
             }
         }
-        else if(!isControlled){
-            MoveToDefaultPas();
+
+
+
+        if (isControlled)
+        {
+            if (isJumping && rb.linearVelocity.y < -0.1f)
+            {
+                hasHitDuringJump = true;
+            }
+
+            if (IsGrounded())
+            {
+                isJumping = false;
+                hasHitDuringJump = false;
+            }
+
+            if (IsGrounded() && isAutoChasingBall)
+            {
+                //isAutoChasingBall = false;
+            }
         }
-
-        //if (isControlled)
-        //{
-        //    if (IsGrounded())
-        //    {
-        //        if (!playerSwitchManager.isControlAll)
-        //        {
-        //            CharacterAction();
-        //        }
-        //        else
-        //        {
-        //            if (playerSwitchManager.IsClosestToBall(gameObject))
-        //            {
-        //                Debug.Log(gameObject.name + " yang paling dekat = " + playerSwitchManager.IsClosestToBall(gameObject));
-        //                CharacterAction();
-        //            }
-        //        }
-
-
-        //    }
-
-        //    if (isJumping && rb.linearVelocity.y < -0.1f)
-        //    {
-        //        hasHitDuringJump = true;
-        //    }
-
-        //    if (IsGrounded())
-        //    {
-        //        isJumping = false;
-        //        hasHitDuringJump = false;
-        //    }
-
-        //    if (IsGrounded() && isAutoChasingBall)
-        //    {
-        //        //isAutoChasingBall = false;
-        //    }
-        //}
     }
 
     private bool isMovingToBall = false;
@@ -345,7 +342,16 @@ public class NPCMovement3D : MonoBehaviour
         isMovingToBall = true; // Mulai bergerak
     }
 
-    bool isInAction;
+    Vector3 getBallLandingPos() {
+        Rigidbody ballRb = ballManager.GetComponent<Rigidbody>();
+        Vector3 landingPos = PredictBallLandingPosition(ballRb);
+
+        // Set sebagai target
+        targetBallXZPos = new Vector3(landingPos.x, transform.position.y, landingPos.z);
+        return targetBallXZPos;
+    }
+
+    bool hasStartedAutoChase;
     void BotDecision()
     {
 
@@ -358,7 +364,8 @@ public class NPCMovement3D : MonoBehaviour
         float distanceToBall = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
                                                 new Vector3(ballPos.x, 0, ballPos.z));
 
-        float maxChaseDistance = 5f;  // Jarak maksimum untuk dikejar
+        float maxChaseDistance = 20f;  // Jarak maksimum untuk dikejar
+        float chaseDistance = 10f;
         float actDistance = 1f;      // Jika sudah sangat dekat, lakukan aksi
 
         // Terlalu jauh? Tidak usah dikejar
@@ -367,27 +374,40 @@ public class NPCMovement3D : MonoBehaviour
             return;
         }
 
+
         // Sudah cukup dekat dengan bola → lakukan aksi
         if (distanceToBall < actDistance)
         {
-            if (!isInAction) {
-                
+            if (IsGrounded() && !enemySwitchManager.isCooldownAction)
+            {
                 if (enemySwitchManager.hitCount < 2)
                 {
-                    PassBallInOwnArena();
-   
+                    TryPassToBall();
+
                 }
                 else
                 {
-                    HitBallToOtherSide();
-           
+                    Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+                    if (hits.Length > 0)
+                    {
+                        Debug.Log("Pukul langsung saat di tanah");
+                        HitBallToOtherSide();
+                    }
+                    else
+                    {
+                        Debug.Log("Lompat karena tidak ada bola");
+                        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                        StartAutoChaseToBall();
+                        hasStartedAutoChase = true;
+
+                    }
                 }
             }
-            
+
+
         }
         else
         {
-            // Kejar posisi prediksi bola
             MoveToBallLandingPositionAndAct();
         }
     }
@@ -411,8 +431,8 @@ public class NPCMovement3D : MonoBehaviour
     {
         ballManager.arenaSide = "";
         ballManager.LastSideToHitTheBall = ArenaSide;
-        enemySwitchManager.hitCount = 0;
-        enemySwitchManager.ReturnToSingleControl(this.gameObject);
+        //enemySwitchManager.hitCount = 0;
+        //enemySwitchManager.ReturnToSingleControl(this.gameObject);
 
         playerswitchManager.EnableAllControl();
 
@@ -430,9 +450,9 @@ public class NPCMovement3D : MonoBehaviour
     void SmashBall(Transform ball)
     {
         ballManager.arenaSide = "";
-        enemySwitchManager.hitCount = 0;
+        //enemySwitchManager.hitCount = 0;
         ballManager.LastSideToHitTheBall = ArenaSide;
-        enemySwitchManager.ReturnToSingleControl(this.gameObject);
+        //enemySwitchManager.ReturnToSingleControl(this.gameObject);
 
         playerswitchManager.EnableAllControl();
 
@@ -553,10 +573,10 @@ public class NPCMovement3D : MonoBehaviour
             else
             {
                 // Aktifkan mode dash ke bola
-                Debug.Log("🏃 Dash otomatis ke bola");
-                isDashingToBall = true;
-                dashBallTarget = ball;
-                dashTime = maxDashTime;
+                //Debug.Log("🏃 Dash otomatis ke bola");
+                //isDashingToBall = true;
+                //dashBallTarget = ball;
+                //dashTime = maxDashTime;
             }
         }
     }
@@ -577,8 +597,6 @@ public class NPCMovement3D : MonoBehaviour
 
         Vector3 velocity = CalculateLaunchVelocity(ball.position, target, adjustedArcHeight);
         rb.linearVelocity = velocity;
-
-        isInAction = false;
 
         Debug.DrawLine(ball.position, target, Color.red, 2f);
         Debug.Log($"Ball launched to {target} with velocity {velocity}, arcHeight: {adjustedArcHeight}");
@@ -657,7 +675,7 @@ public class NPCMovement3D : MonoBehaviour
                     PassBallInOwnArena();
                     pendingPass = false;
                     targetPassBall = null;
-                    hasRescueHit = true;
+                    //hasRescueHit = true;
                 }
                 else if (ball.position.y >= smashHeightThreshold)
                 {
@@ -671,7 +689,15 @@ public class NPCMovement3D : MonoBehaviour
                     else
                     {
                         Debug.Log("🔥 Smash karena bola tinggi");
-                        SmashBall(ball);
+                        if (Random.Range(0, 10) > 4)
+                        {
+                            HitBallToOtherSide();
+
+                        }
+                        else { 
+                            SmashBall(ball);
+                        }
+
                     }
                 }
                 else
@@ -694,103 +720,104 @@ public class NPCMovement3D : MonoBehaviour
             }
         }
 
-        dashTimer -= Time.fixedDeltaTime;
-        if (dashTimer <= 0f)
-        {
-            isDashing = false;
-        }
-        else
-        {
-            rb.linearVelocity = dashDirection * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
-            return; // Jangan lanjut gerak normal selama dash
-        }
+        //dashTimer -= Time.fixedDeltaTime;
+        //if (dashTimer <= 0f)
+        //{
+        //    isDashing = false;
+        //}
+        //else
+        //{
+        //    rb.linearVelocity = dashDirection * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
+        //    return; // Jangan lanjut gerak normal selama dash
+        //}
 
-        if (isDashing)
-        {
-            dashTimer -= Time.fixedDeltaTime;
-            if (dashTimer <= 0f)
-            {
-                isDashing = false;
-            }
-            else
-            {
-                rb.linearVelocity = dashDirection * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
+        //if (isDashing)
+        //{
+        //    dashTimer -= Time.fixedDeltaTime;
+        //    if (dashTimer <= 0f)
+        //    {
+        //        isDashing = false;
+        //    }
+        //    else
+        //    {
+        //        rb.linearVelocity = dashDirection * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
 
-                // Cek apakah saat dash mengenai bola → langsung pass
-                Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
-                if (hits.Length > 0)
-                {
-                    Debug.Log("✅ Passing bola saat dash");
-                    PassBallInOwnArena();
-                    isDashing = false; // opsional: batasi satu kali
-                }
+        //        // Cek apakah saat dash mengenai bola → langsung pass
+        //        Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+        //        if (hits.Length > 0)
+        //        {
+        //            Debug.Log("✅ Passing bola saat dash");
+        //            PassBallInOwnArena();
+        //            isDashing = false; // opsional: batasi satu kali
+        //        }
 
-                return; // Jangan lanjut gerak normal selama dash
-            }
-        }
+        //        return; // Jangan lanjut gerak normal selama dash
+        //    }
+        //}
 
-        if (isDashingToBall)
-        {
-            dashTime -= Time.fixedDeltaTime;
+        //if (isDashingToBall)
+        //{
+        //    dashTime -= Time.fixedDeltaTime;
 
-            if (dashBallTarget == null || dashTime <= 0f)
-            {
-                isDashingToBall = false;
-                return;
-            }
+        //    if (dashBallTarget == null || dashTime <= 0f)
+        //    {
+        //        isDashingToBall = false;
+        //        return;
+        //    }
 
-            Vector3 dashDir = new Vector3(modelTransform.forward.x, 0, modelTransform.forward.z).normalized;
+        //    Vector3 dashDir = new Vector3(modelTransform.forward.x, 0, modelTransform.forward.z).normalized;
 
 
-            rb.linearVelocity = dashDir * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
+        //    rb.linearVelocity = dashDir * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
 
-            // ⬇️ Tambahan ini
-            if (modelTransform != null && dashDir.sqrMagnitude > 0.01f)
-            {
-                modelTransform.forward = dashDir;
-            }
+        //    // ⬇️ Tambahan ini
+        //    if (modelTransform != null && dashDir.sqrMagnitude > 0.01f)
+        //    {
+        //        modelTransform.forward = dashDir;
+        //    }
 
-            // Cek overlap bola untuk pass otomatis
-            if (Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer).Length > 0)
-            {
-                Debug.Log("✅ Pass otomatis saat dash ke bola");
-                PassBallInOwnArena();
-                //isDashingToBall = false;
-            }
+        //    // Cek overlap bola untuk pass otomatis
+        //    if (Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer).Length > 0)
+        //    {
+        //        Debug.Log("✅ Pass otomatis saat dash ke bola");
+        //        PassBallInOwnArena();
+        //        //isDashingToBall = false;
+        //    }
 
-            return; // Selama dash aktif, abaikan kontrol biasa
-        }
+        //    return; // Selama dash aktif, abaikan kontrol biasa
+        //}
 
         // Gerakan
         Vector3 moveDir;
         if (IsGrounded())
         {
-            moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
-            lastGroundMoveDir = moveDir.magnitude > 0.1f ? moveDir : Vector3.zero;
+            bool hasStartedAutoChase=false;
+            //moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
+            //lastGroundMoveDir = moveDir.magnitude > 0.1f ? moveDir : Vector3.zero;
         }
         else
         {
-            moveDir = lastGroundMoveDir * 0.2f;
+            //moveDir = lastGroundMoveDir * 0.2f;
         }
 
 
 
         // Rotasi model
-        if (modelTransform != null)
-        {
-            if (!IsGrounded())
-            {
-                modelTransform.forward = Vector3.left;
-            }
-            else
-            {
-                Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-                if (horizontalVelocity.magnitude > 0.1f)
-                {
-                    modelTransform.forward = horizontalVelocity.normalized;
-                }
-            }
-        }
+        //if (modelTransform != null)
+        //{
+        //    if (!IsGrounded())
+        //    {
+        //        modelTransform.forward = Vector3.right;
+        //    }
+        //    else
+        //    {
+        //        Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        //        if (horizontalVelocity.magnitude > 0.2f)
+        //        {
+        //            modelTransform.forward = horizontalVelocity.normalized;
+        //        }
+        //    }
+        //}
 
         Vector3 v = rb.linearVelocity;
 
@@ -814,58 +841,58 @@ public class NPCMovement3D : MonoBehaviour
                 isAutoChasingBall = false;
             }
         }
-        else
-        {
-            // Hanya apply input move jika tidak auto chase
-            rb.linearVelocity = new Vector3(moveDir.x * moveSpeed, v.y, moveDir.z * moveSpeed);
-        }
 
-        if (isAutoChasingBall && !IsGrounded())
-        {
-            chaseTimer -= Time.fixedDeltaTime;
-            Vector3 direction = (targetBallXZPos - transform.position);
-            direction.y = 0f;
 
-            if (direction.magnitude > 0.1f && chaseTimer > 0f)
+        if (isMovingToBall)
+        {
+            // Haluskan target agar tidak sering berubah
+            smoothTargetPos = Vector3.Lerp(
+                smoothTargetPos,
+                targetBallXZPos,
+                Time.deltaTime * 5f // makin besar = makin responsif
+            );
+
+            Vector3 toTarget = smoothTargetPos - transform.position;
+            toTarget.y = 0;
+
+            float distance = toTarget.magnitude;
+            float deadZone = 0.3f; // lebih besar dari 0.1 agar tidak bolak-balik
+
+            if (distance < deadZone)
             {
-                rb.linearVelocity = new Vector3(
-                    direction.normalized.x * autoMoveSpeed,
-                    rb.linearVelocity.y,
-                    direction.normalized.z * autoMoveSpeed
-                );
+                // Sudah dekat → hentikan gerak & rotasi
+                rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+                isMovingToBall = false;
+
+                Debug.Log("🟢 Sampai ke posisi prediksi bola (stabil).");
             }
             else
             {
-                isAutoChasingBall = false;
-            }
+                // Bergerak ke target
+                Vector3 moveTarget = toTarget.normalized;
+                rb.linearVelocity = new Vector3(
+                    moveTarget.x * moveSpeed,
+                    rb.linearVelocity.y,
+                    moveTarget.z * moveSpeed
+                );
 
-            return; // ⛔ stop logic lain saat auto-chasing aktif
-        }
-
-        if (!isAutoChasingBall) {
-            if (isMovingToBall)
-            {
-                float distance = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
-                                                  new Vector3(targetBallXZPos.x, 0, targetBallXZPos.z));
-
-                if (distance > 0.1f) // Masih jauh → bergerak
+                // Rotasi model hanya kalau agak jauh dari target
+                if (modelTransform != null && distance > 0.5f) // rotasi hanya saat > 0.5m dari target
                 {
-                    Vector3 direction = (targetBallXZPos - transform.position).normalized;
-                    transform.position += new Vector3(direction.x, 0, direction.z) * autoMoveSpeed * Time.deltaTime;
-
-                    // Optional: rotasi hadap ke arah gerak
-                    if (modelTransform != null)
+                    Vector3 horizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                    if (horizontalVel.magnitude > 0.2f)
                     {
-                        modelTransform.forward = new Vector3(direction.x, 0, direction.z);
+                        modelTransform.forward = Vector3.Slerp(
+                            modelTransform.forward,
+                            horizontalVel.normalized,
+                            Time.deltaTime * 10f // rotasi halus
+                        );
                     }
                 }
-                else
-                {
-                    isMovingToBall = false; // Sudah sampai → diam
-                }
             }
+
+            return; // Hindari gerakan lain saat sedang bergerak ke bola
         }
-        
     }
 
 
@@ -1023,7 +1050,7 @@ public class NPCMovement3D : MonoBehaviour
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
             if (modelTransform != null)
             {
-                modelTransform.forward = Vector3.left;
+                modelTransform.forward = Vector3.right;
             }
         }
     }

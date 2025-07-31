@@ -46,7 +46,7 @@ public class PlayerSwitchManager : MonoBehaviour
         if (controller != null)
         {
             //controller.enabled = enable;
-            controller.StopMovement();
+            StopMovement(player);
             controller.activeSign.SetActive(enable);
             controller.isControlled = enable;
             controller.StopMovement();

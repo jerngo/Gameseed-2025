@@ -12,6 +12,9 @@ public class NPCManager : MonoBehaviour
     public bool isControlAll = false;
 
     public Transform ball;
+    public bool isCooldownAction;
+
+    GameRuleManager gameruleManager;
 
     public GameObject GetOtherPlayer()
     {
@@ -20,6 +23,8 @@ public class NPCManager : MonoBehaviour
 
     void Start()
     {
+        gameruleManager = FindFirstObjectByType<GameRuleManager>();
+
         currentPlayer = playerA;
         otherPlayer = playerB;
 
@@ -47,6 +52,7 @@ public class NPCManager : MonoBehaviour
         var controller = player.GetComponent<NPCMovement3D>();
         if (controller != null)
         {
+            StopMovement(player);
             //controller.enabled = enable;
             controller.activeSign.SetActive(enable);
             controller.isControlled = enable;
@@ -64,11 +70,10 @@ public class NPCManager : MonoBehaviour
 
     public void EnableAllControl()
     {
-        //isControlAll = true;
+        isControlAll = true;
 
-        //EnableController(currentPlayer, true);
-        //EnableController(otherPlayer, true);
-
+        EnableController(IsClosestToBallLanding(), true);
+        hitCount = 0;
     }
 
     void StopMovement(GameObject player)
@@ -106,6 +111,19 @@ public class NPCManager : MonoBehaviour
         return distPlayer <= distOther;
     }
 
+    public GameObject IsClosestToBallLanding()
+    {
+        float distEnemy1 = Vector3.Distance(playerA.transform.position, gameruleManager.PredictBallLandingPosition());
+        float distEnemy2 = Vector3.Distance(playerB.transform.position, gameruleManager.PredictBallLandingPosition());
+
+        if (distEnemy1 < distEnemy2)
+        {
+            return playerA;
+        }
+        else {
+            return playerB;
+        }
+    }
 
     private GameObject GetOtherPlayerObject(GameObject current)
     {
