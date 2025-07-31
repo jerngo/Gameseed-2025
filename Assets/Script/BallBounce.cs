@@ -33,11 +33,11 @@ public class BallBounce : MonoBehaviour
     {
         if (collision.collider.CompareTag(enemyTag))
         {
-            Vector3 bounceDir = (Vector3.up + playerAreaDirection).normalized;
-            rb.linearVelocity = bounceDir * bounceForce;
-            arenaSide = "Right";
-            playerswitchManager.EnableAllControl();
-            isServingBall = false;
+            //Vector3 bounceDir = (Vector3.up + playerAreaDirection).normalized;
+            //rb.linearVelocity = bounceDir * bounceForce;
+            //arenaSide = "Enemy";
+            //playerswitchManager.EnableAllControl();
+            //isServingBall = false;
         }
     }
 }

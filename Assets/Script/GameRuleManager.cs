@@ -36,6 +36,8 @@ public class GameRuleManager : MonoBehaviour
     PlayerSwitchManager playerswitchManager;
     BallBounce ballbounce;
 
+    public bool isServingRound;
+
     [SerializeField]
     AudioSource suarapluit;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -54,14 +56,11 @@ public class GameRuleManager : MonoBehaviour
         if (serveFromPlayer)
         {
             PlayerSetServe();
-            playerFrontline.GetComponent<PlayerMovement3D>().TeleChartoDefaultPos();
         }
         else {
             PlayerSetServe();
-            playerFrontline.GetComponent<PlayerMovement3D>().TeleChartoDefaultPos();
         }
 
-        barrierServe.SetActive(true);
        
     }
 
@@ -69,26 +68,40 @@ public class GameRuleManager : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.R)) {
             PlayerSetServe();
-            barrierServe.SetActive(true);
-            playerBackline.GetComponent<PlayerMovement3D>().TeleChartoHere(playerServerSpawnPos);
-            playerFrontline.GetComponent<PlayerMovement3D>().TeleChartoDefaultPos();
+                
         }
     }
 
     void PlayerSetServe() {
         suarapluit.Play();
+        isServingRound = true;
+
         playerswitchManager.PlayerServe();
         ballbounce.isAlreadyScored = false;
+
+        barrierServe.SetActive(true);
         playerBackline.GetComponent<PlayerMovement3D>().TeleChartoHere(playerServerSpawnPos);
+        playerBackline.GetComponent<PlayerMovement3D>().TeleChartoHere(playerServerSpawnPos);
+        playerFrontline.GetComponent<PlayerMovement3D>().TeleChartoDefaultPos();
+        enemyBackline.GetComponent<NPCMovement3D>().TeleChartoDefaultPos();
+        enemyFrontline.GetComponent<NPCMovement3D>().TeleChartoDefaultPos();
     }
 
     void EnemySetServe() { 
         
     }
 
-    public void UsePowerPlayer() {
-        playerPower--;
-        powerPlayertext.text = $"Power: {playerPower}";
+    public void UsePower(string playertype) {
+        if (playertype == "Player")
+        {
+            playerPower--;
+            powerPlayertext.text = $"Power: {playerPower}";
+        }
+        else if (playertype == "Enemy")
+        {
+            enemyPower--;
+            powerEnemytext.text = $"Power: {enemyPower}";
+        }
     }
 
     public void AddScore(PlayerType player) {

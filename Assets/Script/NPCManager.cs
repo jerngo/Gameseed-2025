@@ -3,99 +3,151 @@ using System.Collections;
 
 public class NPCManager : MonoBehaviour
 {
-    public NPCMovement3D[] npcs; // Misal: NPC0 dan NPC1
+    public GameObject playerA;
+    public GameObject playerB;
+
+    private GameObject currentPlayer;
+    private GameObject otherPlayer;
+    public int hitCount = 0;
+    public bool isControlAll = false;
+
     public Transform ball;
 
-    private int currentIndex = 0;
-    private int hitCount = 0;
-    private bool smashMode = false;
-    private NPCMovement3D lastHitter = null;
+    public GameObject GetOtherPlayer()
+    {
+        return otherPlayer;
+    }
 
     void Start()
     {
-        ActivateNPC(currentIndex);
+        currentPlayer = playerA;
+        otherPlayer = playerB;
+
+        EnableController(playerA, false);
+        EnableController(playerB, true);
+
+        //otherPlayer.GetComponent<PlayerMovement3D>().SetServer();
     }
 
-    public void OnNPCHit(NPCMovement3D npc)
+    public void PlayerServe()
     {
-        if (npc != npcs[currentIndex]) return; // Hanya NPC aktif yang boleh memukul
+        EnableController(playerA, false);
+        EnableController(playerB, true);
+        playerB.GetComponent<NPCMovement3D>().SetServer();
+    }
 
-        if (npc == lastHitter)
+    private void Update()
+    {
+        //Debug ulang serve nanti hapus
+
+    }
+
+    void EnableController(GameObject player, bool enable)
+    {
+        var controller = player.GetComponent<NPCMovement3D>();
+        if (controller != null)
         {
-            Debug.LogWarning("❌ NPC yang sama mencoba memukul dua kali berturut-turut!");
-            return;
+            //controller.enabled = enable;
+            controller.activeSign.SetActive(enable);
+            controller.isControlled = enable;
+            controller.StopMovement();
+        }
+    }
+
+    void DisableAllControl()
+    {
+        isControlAll = false;
+
+        EnableController(currentPlayer, false);
+        EnableController(otherPlayer, false);
+    }
+
+    public void EnableAllControl()
+    {
+        //isControlAll = true;
+
+        //EnableController(currentPlayer, true);
+        //EnableController(otherPlayer, true);
+
+    }
+
+    void StopMovement(GameObject player)
+    {
+        var rb = player.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
 
-        if (smashMode)
+        var controller = player.GetComponent<NPCMovement3D>();
+        if (controller != null)
         {
-            Debug.Log("💥 Smash selesai oleh " + npc.name);
-            npc.isActive = false;
-            smashMode = false;
-
-            StartCoroutine(StartPassingAfterSmash());
-            return;
+            controller.lastGroundMoveDir = Vector3.zero;
         }
+    }
 
-        lastHitter = npc;
-        hitCount++;
-        npc.isActive = false;
+    public void OnEnemyTouch()
+    {
+        hitCount = 0;
+    }
 
-        Debug.Log("✅ Passing ke-" + hitCount + " oleh " + npc.name);
+    public bool IsClosestToBall(GameObject player)
+    {
+        if (ball == null) return false;
 
-        if (hitCount >= 2)
+        Vector2 playerXZ = new Vector2(player.transform.position.x, player.transform.position.z);
+        Vector2 otherXZ = new Vector2(GetOtherPlayerObject(player).transform.position.x, GetOtherPlayerObject(player).transform.position.z);
+        Vector2 ballXZ = new Vector2(ball.position.x, ball.position.z);
+
+        float distPlayer = Vector2.Distance(playerXZ, ballXZ);
+        float distOther = Vector2.Distance(otherXZ, ballXZ);
+
+        return distPlayer <= distOther;
+    }
+
+
+    private GameObject GetOtherPlayerObject(GameObject current)
+    {
+        if (current == playerA) return playerB;
+        if (current == playerB) return playerA;
+        return null;
+    }
+
+    void SwitchControl()
+    {
+        // Hentikan pergerakan player lama dulu
+        StopMovement(currentPlayer);
+
+        // Pindahkan kontrol
+        EnableController(currentPlayer, false);
+        EnableController(otherPlayer, true);
+
+        // Tukar peran
+        var temp = currentPlayer;
+        currentPlayer = otherPlayer;
+        otherPlayer = temp;
+    }
+
+    public void ReturnToSingleControl(GameObject newController)
+    {
+        isControlAll = false;
+
+        if (newController == playerA)
         {
-            hitCount = 0;
-            lastHitter = null;
-            currentIndex = 0;
-            smashMode = true;
 
-            Debug.Log("💥 Smash dimulai oleh " + npcs[currentIndex].name);
-
-            npcs[currentIndex].SetTarget(ball);
-            npcs[currentIndex].isActive = true;
-            npcs[currentIndex].PrepareSmash();
+            EnableController(playerA, false);
+            EnableController(playerB, true);
+            currentPlayer = playerB;
+            otherPlayer = playerA;
         }
         else
         {
-            currentIndex = (currentIndex + 1) % npcs.Length;
-            ActivateNPC(currentIndex);
+            EnableController(playerA, true);
+            EnableController(playerB, false);
+            currentPlayer = playerA;
+            otherPlayer = playerB;
         }
     }
 
-    private IEnumerator StartPassingAfterSmash()
-    {
-        yield return new WaitForSeconds(1f);
-
-        hitCount = 0; // Hit pertama setelah smash
-        lastHitter = npcs[1]; // Karena NPC 0 baru saja melakukan smash
-
-        currentIndex = 0; // Passing dimulai oleh NPC berikutnya
-        ActivateNPC(currentIndex);
-
-        Debug.Log("🔁 Passing dimulai lagi oleh " + npcs[currentIndex].name);
-    }
-
-    void ActivateNPC(int index)
-    {
-        for (int i = 0; i < npcs.Length; i++)
-        {
-            npcs[i].isActive = false;
-        }
-
-        npcs[index].SetTarget(ball);
-        npcs[index].isActive = true;
-        Debug.Log("🎯 NPC aktif: " + npcs[index].name);
-    }
-
-    public GameObject GetOtherNPC(GameObject self)
-    {
-        foreach (var npc in npcs)
-        {
-            if (npc.gameObject != self)
-            {
-                return npc.gameObject;
-            }
-        }
-        return null;
-    }
 }

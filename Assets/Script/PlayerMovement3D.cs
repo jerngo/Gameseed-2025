@@ -79,6 +79,7 @@ public class PlayerMovement3D : MonoBehaviour
 
     BallBounce ballManager;
     PlayerSwitchManager playerSwitchManager;
+    NPCManager npcSwitchManager;
     GameRuleManager gamerulemanager;
 
     public Transform DefaultPosition;
@@ -86,6 +87,7 @@ public class PlayerMovement3D : MonoBehaviour
     void Awake()
     {
         playerSwitchManager = FindFirstObjectByType<PlayerSwitchManager>();
+        npcSwitchManager = FindFirstObjectByType<NPCManager>();
         controls = new PlayerControls();
         ballManager = FindFirstObjectByType<BallBounce>();
         gamerulemanager = FindFirstObjectByType<GameRuleManager>();
@@ -119,7 +121,8 @@ public class PlayerMovement3D : MonoBehaviour
 
     public void TeleChartoDefaultPos() {
         Vector3 targetPos = DefaultPosition.position;
-
+        rb.linearVelocity = Vector3.zero;
+        isAutoChasingBall = false;
         // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
         Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
 
@@ -130,7 +133,8 @@ public class PlayerMovement3D : MonoBehaviour
     public void TeleChartoHere(Transform target)
     {
         Vector3 targetPos = target.position;
-
+        rb.linearVelocity = Vector3.zero;
+        isAutoChasingBall = false;
         // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
         Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
 
@@ -328,6 +332,8 @@ public class PlayerMovement3D : MonoBehaviour
         playerSwitchManager.hitCount = 0;
         playerSwitchManager.ReturnToSingleControl(this.gameObject);
 
+        npcSwitchManager.EnableAllControl();
+
         Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
         if (hits.Length == 0) return;
 
@@ -345,6 +351,8 @@ public class PlayerMovement3D : MonoBehaviour
         playerSwitchManager.hitCount = 0;
         ballManager.LastSideToHitTheBall = ArenaSide;
         playerSwitchManager.ReturnToSingleControl(this.gameObject);
+
+        npcSwitchManager.EnableAllControl();
 
         int zoneIndex = GetZoneIndexFromInput(moveInput);
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
@@ -388,6 +396,7 @@ public class PlayerMovement3D : MonoBehaviour
             ballRb.linearVelocity = direction * serveSpeed;
         }
 
+        ballManager.isServingBall = false;
         Debug.DrawLine(ball.position, target, Color.yellow, 2f);
         Debug.Log("🔥 Smash! Ke zona " + zoneIndex + ", jarak = " + distanceXZ.ToString("F2") + ", Y = " + dynamicY.ToString("F2"));
     }
@@ -400,6 +409,8 @@ public class PlayerMovement3D : MonoBehaviour
         ballManager.arenaSide = ArenaSide;
         ballManager.LastSideToHitTheBall = ArenaSide;
         playerSwitchManager.hitCount++;
+
+        npcSwitchManager.EnableAllControl();
 
         Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
         if (hits.Length == 0) return;
@@ -484,6 +495,7 @@ public class PlayerMovement3D : MonoBehaviour
         Vector3 velocity = CalculateLaunchVelocity(ball.position, target, adjustedArcHeight);
         rb.linearVelocity = velocity;
 
+        moveInput = Vector2.zero;
         Debug.DrawLine(ball.position, target, Color.red, 2f);
         Debug.Log($"Ball launched to {target} with velocity {velocity}, arcHeight: {adjustedArcHeight}");
     }
@@ -521,7 +533,9 @@ public class PlayerMovement3D : MonoBehaviour
             isDashingToBall = false;
             isAutoChasingBall = false;
 
-            MoveToDefaultPas();
+            if (!gamerulemanager.isServingRound) { 
+                MoveToDefaultPas();
+            }
             return;
         }
 
@@ -746,7 +760,7 @@ public class PlayerMovement3D : MonoBehaviour
     public void SetServer() {
         serveStage = 0;
         isServing = true;
-
+        gamerulemanager.isServingRound = false;
         // Ambil bola
         //Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
         //if (hits.Length == 0) return;
@@ -821,7 +835,7 @@ public class PlayerMovement3D : MonoBehaviour
     {
         if (!IsGrounded()) return;
 
-        gamerulemanager.UsePowerPlayer();
+        gamerulemanager.UsePower(ArenaSide);
 
         Debug.Log("🚀 Mulai PowerShoot + Slow Motion");
         rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
@@ -844,6 +858,8 @@ public class PlayerMovement3D : MonoBehaviour
         ballManager.LastSideToHitTheBall = ArenaSide;
         playerSwitchManager.hitCount = 0;
         playerSwitchManager.ReturnToSingleControl(this.gameObject);
+
+        npcSwitchManager.EnableAllControl();
 
         int zoneIndex = GetZoneIndexFromInput(moveInput);
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;

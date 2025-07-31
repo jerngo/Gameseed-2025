@@ -1,102 +1,771 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class NPCMovement3D : MonoBehaviour
 {
+    [Header("Auto Jump Tracking")]
+    public float autoMoveSpeed = 5f;
+    public float maxChaseDuration = 1.5f;
+
+    private bool isAutoChasingBall = false;
+    private Vector3 targetBallXZPos;
+    private float chaseTimer = 0f;
+
+    [Header("Model")]
+    public Transform modelTransform;
+
+    [Header("Smash Settings")]
+    public float smashHeightThreshold = 7.5f;
+    public float smashSpeed = 25f;
+
+    [Header("Movement")]
+    public float moveSpeed = 5f;
+    public float jumpForce = 7f;
+    public float dashForce = 10f;
+
+    [Header("Ground Check")]
+    public Transform groundCheck;
+    public float groundCheckRadius = 0.3f;
+    public LayerMask groundLayer;
+
     [Header("Hit Settings")]
     public Transform hitPoint;
     public float hitRadius = 1f;
-    public LayerMask ballLayer;
-    public Transform[] targetZones;
-
-    public float moveSpeed = 5f;
-    public float detectRadius = 10f;
-    public Transform modelTransform;
-
-    private Rigidbody rb;
-    private Vector3 targetPosition;
-    private Vector3 lastGroundMoveDir = Vector3.zero;
-
-    public bool isGrounded;
-    public Transform target; // Bisa bola atau player
-    private bool isSmashMode = false;
-
-    public bool isActive = false; // Menandakan NPC aktif
-
-    public float lobForce = 12f;
-    public float longForce = 12f;
+    public float hitForce = 5f;
+    public float lobForce = 5f;
     public float normalForce = 7f;
+    public float longForce = 12f;
 
-    void DoPass()
-    {
-        Collider[] hitBalls = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
-        if (hitBalls.Length == 0) return;
+    public float serveSpeed = 7;
+    public float serveSpikeHeightMin = -0.2f;
+    public float serveSpikeHeightMax = 0f;
 
-        Rigidbody ballRb = hitBalls[0].attachedRigidbody;
-        if (ballRb == null) return;
+    [Header("Target Zones (9 Grid)")]
+    public Transform[] ownZones = new Transform[9];
+    public Transform[] enemyZones = new Transform[9];
 
-        GameObject targetNPC = FindFirstObjectByType<NPCManager>().GetOtherNPC(this.gameObject);
-        if (targetNPC == null) return;
+    public LayerMask ballLayer;
 
-        Vector3 start = ballRb.position;
-        Vector3 end = targetNPC.transform.position + Vector3.up * 1.5f;
+    private PlayerControls controls;
+    [SerializeField]
+    private Rigidbody rb;
 
-        float distance = Vector3.Distance(start, end);
-        float flightTime = Mathf.Clamp(distance / 3f, 0.6f, 2f);
+    private Vector2 moveInput;
+    private bool dashPressed;
+    private bool hitPressed;
 
-        Vector3 force = CalculateParabolaVelocity(start, end, flightTime);
+    public Vector3 lastGroundMoveDir = Vector3.zero;
 
-        ballRb.linearVelocity = Vector3.zero;
-        ballRb.useGravity = true;
-        ballRb.AddForce(force, ForceMode.VelocityChange);
+    private bool isDashing = false;
+    private Vector3 dashDirection;
+    private float dashDuration = 0.4f;
+    private float dashTimer = 0f;
 
-        isActive = false;
-        FindFirstObjectByType<NPCManager>().OnNPCHit(this);
+    private bool hasRescueHit = false;
 
-    }
+    public float passHeight = 1.5f;
+    public float passSpeedFactor = 3f;
 
-    Vector3 CalculateParabolaVelocity(Vector3 start, Vector3 end, float time)
-    {
-        Vector3 distance = end - start;
-        Vector3 horizontal = new Vector3(distance.x, 0f, distance.z);
-        float verticalDistance = distance.y;
-        float horizontalDistance = horizontal.magnitude;
+    public bool isControlled;
 
-        float vxz = horizontalDistance / time;
-        float vy = (verticalDistance + 0.5f * Mathf.Abs(Physics.gravity.y) * time * time) / time;
+    private bool hasHitDuringJump = false;
+    private bool isJumping = false;
 
-        Vector3 result = horizontal.normalized * vxz;
-        result.y = vy;
-        return result;
-    }
+    private bool pendingPass = false;
+    private Transform targetPassBall = null;
 
-    public void PrepareSmash()
-    {
-        isSmashMode = true;
-    }
+    public string ArenaSide;
+
+    BallBounce ballManager;
+    NPCManager enemySwitchManager;
+    GameRuleManager gamerulemanager;
+    PlayerSwitchManager playerswitchManager;
+
+    public Transform DefaultPosition;
+    public GameObject activeSign;
+
+    public bool isBotControlled = false;
     void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        enemySwitchManager = FindFirstObjectByType<NPCManager>();
+        playerswitchManager = FindFirstObjectByType<PlayerSwitchManager>();
+        //controls = new PlayerControls();
+        ballManager = FindFirstObjectByType<BallBounce>();
+        gamerulemanager = FindFirstObjectByType<GameRuleManager>();
+
+        //controls.Player.Move.performed += ctx => {
+        //    if (isControlled) moveInput = ctx.ReadValue<Vector2>();
+        //};
+        //controls.Player.Move.canceled += _ => {
+        //    if (isControlled) moveInput = Vector2.zero;
+        //};
+        //controls.Player.Dash.performed += _ => {
+        //    if (CanReceiveInput()) dashPressed = true;
+        //};
+        //controls.Player.Hit.performed += _ => {
+        //    if (CanReceiveInput()) hitPressed = true;
+        //};
+        //controls.Player.PowerShoot.performed += _ => {
+        //    if (CanReceiveInput() && IsPowerReady()) TryPowerShoot();
+        //};
+        //controls.Player.Serve.performed += _ => {
+        //    if (isServing) StartServing();
+        //};
+
     }
 
-    private Vector3 lastPosition;
-    private float stuckTimer = 0f;
-    void FixedUpdate()
+    public void StopMovement()
     {
-        if (!isActive)
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        lastGroundMoveDir = Vector3.zero;
+    }
+
+    public void TeleChartoDefaultPos()
+    {
+        Vector3 targetPos = DefaultPosition.position;
+        rb.linearVelocity = Vector3.zero;
+        isAutoChasingBall = false;
+        // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
+        Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
+
+        transform.position = newPos;
+        modelTransform.forward = Vector3.right;
+    }
+
+    public void TeleChartoHere(Transform target)
+    {
+        Vector3 targetPos = target.position;
+        rb.linearVelocity = Vector3.zero;
+        isAutoChasingBall = false;
+        // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
+        Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
+
+        transform.position = newPos;
+        modelTransform.forward = Vector3.right;
+    }
+
+    private bool CanReceiveInput()
+    {
+        if (!isControlled) return false;
+
+        if (isServing) return false;
+
+        // Jika sedang mode free for all, hanya karakter terdekat dengan bola yang terima input
+        if (enemySwitchManager != null && enemySwitchManager.isControlAll)
         {
-            // Hentikan gerakan total saat tidak aktif, tapi jangan hapus target
-            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            return enemySwitchManager.IsClosestToBall(gameObject);
+        }
+
+        return true;
+    }
+
+    bool IsPowerReady()
+    {
+        return gamerulemanager.playerPower > 0;
+    }
+
+    void Start() => rb = GetComponent<Rigidbody>();
+
+    void StartAutoChaseToBall()
+    {
+        if (ballManager.arenaSide == ArenaSide)
+        {
+            Collider[] balls = Physics.OverlapSphere(transform.position, 30f, ballLayer);
+            if (balls.Length > 0)
+            {
+                Transform ball = balls[0].transform;
+
+                // Ambil posisi XZ bola sebagai target
+                targetBallXZPos = PredictBallLandingPosition(ball.GetComponent<Rigidbody>());
+                isAutoChasingBall = true;
+                chaseTimer = maxChaseDuration;
+
+                Debug.Log("🔵 Auto kejar bola aktif: " + targetBallXZPos);
+            }
+        }
+
+    }
+
+    Vector3 PredictBallLandingPosition(Rigidbody ballRb)
+    {
+        Vector3 velocity = ballRb.linearVelocity;
+        Vector3 position = ballRb.position;
+
+        float time = 0f;
+        float timeStep = 0.05f;
+        float maxTime = 3f;
+        Vector3 gravity = Physics.gravity;
+
+        for (; time < maxTime; time += timeStep)
+        {
+            // Prediksi posisi di masa depan
+            Vector3 futurePos = position + velocity * time + 0.5f * gravity * time * time;
+
+            // Jika bola mencapai atau melewati permukaan tanah
+            if (futurePos.y <= groundCheck.position.y + 0.1f)
+            {
+                // Ambil posisi XZ saja, pakai tinggi karakter
+                return new Vector3(futurePos.x, transform.position.y, futurePos.z);
+            }
+        }
+
+        // Jika tidak ketemu, fallback ke posisi bola saat ini
+        return new Vector3(position.x, transform.position.y, position.z);
+    }
+
+
+    void CharacterAction()
+    {
+        if (!isControlled) return;
+        if (hitPressed)
+        {
+            hitPressed = false;
+
+            Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+            if (hits.Length > 0)
+            {
+                Debug.Log("Pukul langsung saat di tanah");
+                HitBallToOtherSide();
+            }
+            else
+            {
+                Debug.Log("Lompat karena tidak ada bola");
+                rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                StartAutoChaseToBall();
+            }
+        }
+
+        if (dashPressed)
+        {
+            dashPressed = false;
+
+            if (enemySwitchManager.hitCount < 2)
+            {
+                TryPassToBall();
+
+            }
+            else
+            {
+                hitPressed = false;
+
+                Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+                if (hits.Length > 0)
+                {
+                    Debug.Log("Pukul langsung saat di tanah");
+                    HitBallToOtherSide();
+                }
+                else
+                {
+                    Debug.Log("Lompat karena tidak ada bola");
+                    rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                    StartAutoChaseToBall();
+                }
+            }
+
+        }
+    }
+
+    void Update()
+    {
+        if (isInSlowMotion)
+        {
+            slowMotionTimer -= Time.unscaledDeltaTime;
+            if (slowMotionTimer <= 0f)
+            {
+                Time.timeScale = 1f;
+                Time.fixedDeltaTime = 0.02f;
+                isInSlowMotion = false;
+                Debug.Log("⏱️ Slow Motion selesai");
+            }
+        }
+
+        if (isBotControlled && isControlled)
+        {
+            if (!isAutoChasingBall) // ⛔ jangan lakukan decision logic saat auto-chase
+            {
+                if (!gamerulemanager.isServingRound) { 
+                    BotDecision();
+                }
+
+
+            }
+        }
+        else if(!isControlled){
+            MoveToDefaultPas();
+        }
+
+        //if (isControlled)
+        //{
+        //    if (IsGrounded())
+        //    {
+        //        if (!playerSwitchManager.isControlAll)
+        //        {
+        //            CharacterAction();
+        //        }
+        //        else
+        //        {
+        //            if (playerSwitchManager.IsClosestToBall(gameObject))
+        //            {
+        //                Debug.Log(gameObject.name + " yang paling dekat = " + playerSwitchManager.IsClosestToBall(gameObject));
+        //                CharacterAction();
+        //            }
+        //        }
+
+
+        //    }
+
+        //    if (isJumping && rb.linearVelocity.y < -0.1f)
+        //    {
+        //        hasHitDuringJump = true;
+        //    }
+
+        //    if (IsGrounded())
+        //    {
+        //        isJumping = false;
+        //        hasHitDuringJump = false;
+        //    }
+
+        //    if (IsGrounded() && isAutoChasingBall)
+        //    {
+        //        //isAutoChasingBall = false;
+        //    }
+        //}
+    }
+
+    private bool isMovingToBall = false;
+    public void MoveToBallLandingPositionAndAct()
+    {
+        Collider[] balls = Physics.OverlapSphere(transform.position, 30f, ballLayer);
+        if (balls.Length == 0) return;
+
+        Rigidbody ballRb = balls[0].GetComponent<Rigidbody>();
+        Vector3 landingPos = PredictBallLandingPosition(ballRb);
+
+        // Set sebagai target
+        targetBallXZPos = new Vector3(landingPos.x, transform.position.y, landingPos.z);
+        isMovingToBall = true; // Mulai bergerak
+    }
+
+    bool isInAction;
+    void BotDecision()
+    {
+
+        Collider[] balls = Physics.OverlapSphere(transform.position, 30f, ballLayer);
+        if (balls.Length == 0) return;
+
+        Rigidbody ballRb = balls[0].GetComponent<Rigidbody>();
+        Vector3 ballPos = ballRb.position;
+
+        float distanceToBall = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
+                                                new Vector3(ballPos.x, 0, ballPos.z));
+
+        float maxChaseDistance = 5f;  // Jarak maksimum untuk dikejar
+        float actDistance = 1f;      // Jika sudah sangat dekat, lakukan aksi
+
+        // Terlalu jauh? Tidak usah dikejar
+        if (distanceToBall > maxChaseDistance)
+        {
             return;
         }
 
-        if (target == null) return;
-
-        Vector3 direction = target.position - transform.position;
-        direction.y = 0;
-        Vector3 moveDir = direction.normalized;
-
-        if (isGrounded)
+        // Sudah cukup dekat dengan bola → lakukan aksi
+        if (distanceToBall < actDistance)
         {
+            if (!isInAction) {
+                isInAction = true;
+                if (enemySwitchManager.hitCount < 2)
+                {
+                    PassBallInOwnArena();
+                }
+                else
+                {
+                    HitBallToOtherSide();
+                }
+            }
+            
+        }
+        else
+        {
+            // Kejar posisi prediksi bola
+            MoveToBallLandingPositionAndAct();
+        }
+    }
+
+
+
+
+    void OnTriggerStay(Collider other)
+    {
+        if (!other.CompareTag("Ball")) return;
+
+        if (!IsGrounded() && isJumping && !hasHitDuringJump)
+        {
+            Debug.Log("Pukul bola di udara");
+            HitBallToOtherSide();
+            hasHitDuringJump = true;
+        }
+    }
+
+    void HitBallToOtherSide()
+    {
+        ballManager.arenaSide = "";
+        ballManager.LastSideToHitTheBall = ArenaSide;
+        enemySwitchManager.hitCount = 0;
+        enemySwitchManager.ReturnToSingleControl(this.gameObject);
+
+        playerswitchManager.EnableAllControl();
+
+        Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+        if (hits.Length == 0) return;
+
+        Transform ball = hits[0].transform;
+        int zoneIndex = GetZoneIndexFromInput(moveInput);
+        if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
+
+        Vector3 target = enemyZones[zoneIndex].position;
+        LaunchBallToTarget(ball, target, hitForce);
+    }
+
+    void SmashBall(Transform ball)
+    {
+        ballManager.arenaSide = "";
+        enemySwitchManager.hitCount = 0;
+        ballManager.LastSideToHitTheBall = ArenaSide;
+        enemySwitchManager.ReturnToSingleControl(this.gameObject);
+
+        playerswitchManager.EnableAllControl();
+
+        int zoneIndex = GetZoneIndexFromInput(moveInput);
+        if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
+
+        Vector3 target = enemyZones[zoneIndex].position;
+
+        Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+        ballRb.useGravity = true;
+
+        // Hitung jarak horizontal (XZ) antara bola dan target
+        Vector2 ballXZ = new Vector2(ball.position.x, ball.position.z);
+        Vector2 targetXZ = new Vector2(target.x, target.z);
+        float distanceXZ = Vector2.Distance(ballXZ, targetXZ);
+
+        // Semakin dekat -> Y lebih negatif (menukik), Semakin jauh -> Y lebih datar
+        float minY = -0.8f; // tukikan tajam (jarak dekat)
+        float maxY = -0.2f; // tukikan datar (jarak jauh)
+        float maxDistance = 10;
+
+        if (ballManager.isServingBall)
+        {
+            minY = serveSpikeHeightMin;
+            maxY = serveSpikeHeightMax;
+        }
+
+        float t = Mathf.Clamp01(distanceXZ / maxDistance); // pastikan t antara 0–1
+        float dynamicY = Mathf.Lerp(maxY, minY, 1 - t); // dibalik untuk efek terbalik
+
+
+
+        // Arahkan dan ubah arah Y jadi dinamis
+        Vector3 direction = (target - ball.position).normalized;
+        direction.y = dynamicY;
+        direction.Normalize();
+
+        if (!ballManager.isServingBall)
+        {
+            ballRb.linearVelocity = direction * smashSpeed;
+        }
+        else
+        {
+            ballRb.linearVelocity = direction * serveSpeed;
+        }
+
+        ballManager.isServingBall = false;
+        Debug.DrawLine(ball.position, target, Color.yellow, 2f);
+        Debug.Log("🔥 Smash! Ke zona " + zoneIndex + ", jarak = " + distanceXZ.ToString("F2") + ", Y = " + dynamicY.ToString("F2"));
+    }
+
+
+
+
+    void PassBallInOwnArena()
+    {
+        ballManager.arenaSide = ArenaSide;
+        ballManager.LastSideToHitTheBall = ArenaSide;
+        enemySwitchManager.hitCount++;
+
+        playerswitchManager.EnableAllControl();
+
+        Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+        if (hits.Length == 0) return;
+
+        Transform ball = hits[0].transform;
+        int zoneIndex = GetZoneIndexFromInput(moveInput);
+        if (zoneIndex < 0 || zoneIndex >= ownZones.Length || ownZones[zoneIndex] == null) return;
+
+        Vector3 target = ownZones[zoneIndex].position;
+        LaunchBallToTarget(ball, target, lobForce);
+
+        enemySwitchManager.ReturnToSingleControl(this.gameObject);
+    }
+
+    public float minDashDistance = 1;
+    bool isDashingToBall = false;
+    Transform dashBallTarget;
+    float dashTime = 0f;
+    public float maxDashTime = 0.4f;
+
+    void TryPassToBall()
+    {
+
+        Collider[] balls = Physics.OverlapSphere(transform.position, 10f, ballLayer);
+        if (balls.Length == 0)
+        {
+            // Dash biasa
+            Vector3 dashDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+            if (dashDir.magnitude < 0.1f) dashDir = transform.forward;
+
+            rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
+            Debug.Log("🟡 Dash biasa (tanpa bola)");
+            return;
+        }
+
+        Transform ball = balls[0].transform;
+        Vector3 toBall = ball.position - transform.position;
+        float distXZ = new Vector2(toBall.x, toBall.z).magnitude;
+        float verticalOffset = ball.position.y - transform.position.y;
+
+        if (IsGrounded())
+        {
+            if (Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer).Length > 0)
+            {
+                Debug.Log("✅ Pass langsung saat di tanah");
+                PassBallInOwnArena();
+            }
+            else if (verticalOffset > 1.2f && distXZ < 1)
+            {
+                Debug.Log("⬆️ Bola tinggi, lompat & siapkan pass");
+                rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                StartAutoChaseToBall();
+
+                pendingPass = true;
+                targetPassBall = ball;
+            }
+            else
+            {
+                // Aktifkan mode dash ke bola
+                Debug.Log("🏃 Dash otomatis ke bola");
+                isDashingToBall = true;
+                dashBallTarget = ball;
+                dashTime = maxDashTime;
+            }
+        }
+    }
+
+
+    void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
+    {
+        ballManager.isServingBall = false;
+
+        Rigidbody rb = ball.GetComponent<Rigidbody>();
+
+        rb.linearDamping = 0f;
+        rb.angularDamping = 0f;
+        rb.useGravity = true;
+
+        float horizontalDistance = Vector3.Distance(new Vector3(ball.position.x, 0, ball.position.z), new Vector3(target.x, 0, target.z));
+        float adjustedArcHeight = Mathf.Clamp(baseArcHeight + (horizontalDistance * 0.25f), baseArcHeight, 25f);
+
+        Vector3 velocity = CalculateLaunchVelocity(ball.position, target, adjustedArcHeight);
+        rb.linearVelocity = velocity;
+
+        isInAction = false;
+
+        Debug.DrawLine(ball.position, target, Color.red, 2f);
+        Debug.Log($"Ball launched to {target} with velocity {velocity}, arcHeight: {adjustedArcHeight}");
+    }
+
+    Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 end, float arcHeight)
+    {
+        float gravity = Mathf.Abs(Physics.gravity.y);
+        Vector3 displacementXZ = new Vector3(end.x - start.x, 0, end.z - start.z);
+        float horizontalDistance = displacementXZ.magnitude;
+        float deltaY = end.y - start.y;
+
+        float timeToPeak = Mathf.Sqrt(2 * arcHeight / gravity);
+        float timeFromPeak = Mathf.Sqrt(2 * Mathf.Max(0.1f, arcHeight - deltaY) / gravity);
+        float totalTime = timeToPeak + timeFromPeak;
+        if (totalTime <= 0.01f) totalTime = 0.01f;
+
+        Vector3 velocityXZ = displacementXZ / totalTime;
+        float velocityY = Mathf.Sqrt(2 * gravity * arcHeight);
+
+        return velocityXZ + (Vector3.up * velocityY);
+    }
+
+    private bool IsGrounded()
+    {
+        return Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+
+    void FixedUpdate()
+    {
+        if (!isControlled)
+        {
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+
+            isDashing = false;
+            isDashingToBall = false;
+            isAutoChasingBall = false;
+
+            MoveToDefaultPas();
+            return;
+        }
+
+        // Cek apakah sedang melompat
+        if (!IsGrounded() && rb.linearVelocity.y > 0.1f && !isJumping)
+        {
+            isJumping = true;
+            Debug.Log("Mulai lompat!");
+        }
+
+        // Saat jatuh, anggap sudah tidak bisa pukul lagi
+        if (rb.linearVelocity.y < -0.1f && isJumping)
+        {
+            hasHitDuringJump = true;
+        }
+
+        if (IsGrounded())
+        {
+            isJumping = false;
+            hasHitDuringJump = false;
+        }
+
+        // Deteksi pukul bola di udara
+        // Deteksi pukul bola di udara
+        if (!IsGrounded() && isJumping && !hasHitDuringJump)
+        {
+            print("Cek Bola Diudara");
+            Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+            if (hits.Length > 0)
+            {
+                Transform ball = hits[0].transform;
+
+                // Jika sedang dalam mode pendingPass, jangan smash, tapi pass
+                if (pendingPass)
+                {
+                    Debug.Log("🔄 Pass bola (override smash karena pendingPass)");
+                    PassBallInOwnArena();
+                    pendingPass = false;
+                    targetPassBall = null;
+                    hasRescueHit = true;
+                }
+                else if (ball.position.y >= smashHeightThreshold)
+                {
+                    if (isPowerShootPending)
+                    {
+                        Debug.Log("💥 PowerShoot aktif!");
+                        PowerShootBall(ball);
+                        isPowerShootPending = false;
+                        powerShootTimer = powerShootSlowTime;
+                    }
+                    else
+                    {
+                        Debug.Log("🔥 Smash karena bola tinggi");
+                        SmashBall(ball);
+                    }
+                }
+                else
+                {
+                    if (isPowerShootPending)
+                    {
+                        Debug.Log("💥 PowerShoot aktif!");
+                        PowerShootBall(ball);
+                        isPowerShootPending = false;
+                        powerShootTimer = powerShootSlowTime;
+                    }
+                    else
+                    {
+                        Debug.Log("🏐 Hit biasa (bola belum cukup tinggi)");
+                        HitBallToOtherSide();
+                    }
+                }
+
+                hasHitDuringJump = true;
+            }
+        }
+
+        dashTimer -= Time.fixedDeltaTime;
+        if (dashTimer <= 0f)
+        {
+            isDashing = false;
+        }
+        else
+        {
+            rb.linearVelocity = dashDirection * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
+            return; // Jangan lanjut gerak normal selama dash
+        }
+
+        if (isDashing)
+        {
+            dashTimer -= Time.fixedDeltaTime;
+            if (dashTimer <= 0f)
+            {
+                isDashing = false;
+            }
+            else
+            {
+                rb.linearVelocity = dashDirection * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
+
+                // Cek apakah saat dash mengenai bola → langsung pass
+                Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+                if (hits.Length > 0)
+                {
+                    Debug.Log("✅ Passing bola saat dash");
+                    PassBallInOwnArena();
+                    isDashing = false; // opsional: batasi satu kali
+                }
+
+                return; // Jangan lanjut gerak normal selama dash
+            }
+        }
+
+        if (isDashingToBall)
+        {
+            dashTime -= Time.fixedDeltaTime;
+
+            if (dashBallTarget == null || dashTime <= 0f)
+            {
+                isDashingToBall = false;
+                return;
+            }
+
+            Vector3 dashDir = new Vector3(modelTransform.forward.x, 0, modelTransform.forward.z).normalized;
+
+
+            rb.linearVelocity = dashDir * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
+
+            // ⬇️ Tambahan ini
+            if (modelTransform != null && dashDir.sqrMagnitude > 0.01f)
+            {
+                modelTransform.forward = dashDir;
+            }
+
+            // Cek overlap bola untuk pass otomatis
+            if (Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer).Length > 0)
+            {
+                Debug.Log("✅ Pass otomatis saat dash ke bola");
+                PassBallInOwnArena();
+                //isDashingToBall = false;
+            }
+
+            return; // Selama dash aktif, abaikan kontrol biasa
+        }
+
+        // Gerakan
+        Vector3 moveDir;
+        if (IsGrounded())
+        {
+            moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
             lastGroundMoveDir = moveDir.magnitude > 0.1f ? moveDir : Vector3.zero;
         }
         else
@@ -104,130 +773,271 @@ public class NPCMovement3D : MonoBehaviour
             moveDir = lastGroundMoveDir * 0.2f;
         }
 
-        Vector3 v = rb.linearVelocity;
-        rb.linearVelocity = new Vector3(moveDir.x * moveSpeed, v.y, moveDir.z * moveSpeed);
 
-        Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        if (horizontalVelocity.magnitude > 0.1f)
-            modelTransform.forward = horizontalVelocity.normalized;
 
-        // Mode smash
-        if (isSmashMode && isGrounded && Vector3.Distance(transform.position, target.position) < 1.5f)
+        // Rotasi model
+        if (modelTransform != null)
         {
-            SmashBall();
-        }
-
-        if (isGrounded && !isSmashMode && Vector3.Distance(transform.position, target.position) < 1.5f)
-        {
-            DoPass();
-        }
-
-        float movedDistance = Vector3.Distance(transform.position, lastPosition);
-        if (movedDistance < 0.05f)
-        {
-            stuckTimer += Time.fixedDeltaTime;
-            if (stuckTimer > 1f) // Setelah 1 detik tidak bergerak cukup
+            if (!IsGrounded())
             {
-                Debug.LogWarning("🚧 NPC stuck, melakukan recovery.");
-                transform.position += Vector3.left * 0.2f; // Dorong mundur ringan, bisa diganti arah lain
-                stuckTimer = 0f;
+                modelTransform.forward = Vector3.left;
+            }
+            else
+            {
+                Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                if (horizontalVelocity.magnitude > 0.1f)
+                {
+                    modelTransform.forward = horizontalVelocity.normalized;
+                }
+            }
+        }
+
+        Vector3 v = rb.linearVelocity;
+
+        // Jika sedang auto chase, abaikan input movement manual
+        if (isAutoChasingBall && !IsGrounded())
+        {
+            chaseTimer -= Time.fixedDeltaTime;
+            Vector3 direction = (targetBallXZPos - transform.position);
+            direction.y = 0f;
+
+            if (direction.magnitude > 0.1f && chaseTimer > 0f)
+            {
+                rb.linearVelocity = new Vector3(
+                    direction.normalized.x * autoMoveSpeed,
+                    v.y,
+                    direction.normalized.z * autoMoveSpeed
+                );
+            }
+            else
+            {
+                isAutoChasingBall = false;
             }
         }
         else
         {
-            stuckTimer = 0f;
+            // Hanya apply input move jika tidak auto chase
+            rb.linearVelocity = new Vector3(moveDir.x * moveSpeed, v.y, moveDir.z * moveSpeed);
         }
 
-        lastPosition = transform.position;
+        if (isAutoChasingBall && !IsGrounded())
+        {
+            chaseTimer -= Time.fixedDeltaTime;
+            Vector3 direction = (targetBallXZPos - transform.position);
+            direction.y = 0f;
+
+            if (direction.magnitude > 0.1f && chaseTimer > 0f)
+            {
+                rb.linearVelocity = new Vector3(
+                    direction.normalized.x * autoMoveSpeed,
+                    rb.linearVelocity.y,
+                    direction.normalized.z * autoMoveSpeed
+                );
+            }
+            else
+            {
+                isAutoChasingBall = false;
+            }
+
+            return; // ⛔ stop logic lain saat auto-chasing aktif
+        }
+
+        if (!isAutoChasingBall) {
+            if (isMovingToBall)
+            {
+                float distance = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
+                                                  new Vector3(targetBallXZPos.x, 0, targetBallXZPos.z));
+
+                if (distance > 0.1f) // Masih jauh → bergerak
+                {
+                    Vector3 direction = (targetBallXZPos - transform.position).normalized;
+                    transform.position += new Vector3(direction.x, 0, direction.z) * autoMoveSpeed * Time.deltaTime;
+
+                    // Optional: rotasi hadap ke arah gerak
+                    if (modelTransform != null)
+                    {
+                        modelTransform.forward = new Vector3(direction.x, 0, direction.z);
+                    }
+                }
+                else
+                {
+                    isMovingToBall = false; // Sudah sampai → diam
+                }
+            }
+        }
+        
     }
 
-    void SmashBall()
+
+    int GetZoneIndexFromInput(Vector2 input)
     {
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 10f, rb.linearVelocity.z); // Lompat
+        return Random.Range(0, 9);
+    }
 
-        Rigidbody ballRb = target.GetComponent<Rigidbody>();
-        if (ballRb != null)
+    //Serving
+    public bool isServing = false;
+    private int serveStage = 0; // 0 = belum lempar, 1 = sudah lempar ke atas, siap smash
+    public Transform ballHolder;
+    public float servingHeight = 10;
+    public void SetServer()
+    {
+        serveStage = 0;
+        isServing = true;
+
+        // Ambil bola
+        //Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+        //if (hits.Length == 0) return;
+
+        //playerSwitchManager.ball = hits[0].transform;
+        Rigidbody ballRb = enemySwitchManager.ball.GetComponent<Rigidbody>();
+        ballRb.linearVelocity = Vector3.zero;
+        ballRb.angularVelocity = Vector3.zero;
+        ballRb.useGravity = false;
+        ballRb.isKinematic = true;
+
+        // Tempelkan bola ke tangan
+        enemySwitchManager.ball.SetParent(ballHolder, true);
+        enemySwitchManager.ball.localPosition = Vector3.zero;
+        enemySwitchManager.ball.localRotation = Quaternion.identity;
+    }
+
+    void StartServing()
+    {
+        if (!enemySwitchManager.ball) return;
+
+        if (serveStage == 0)
         {
-            int zoneIndex = Random.Range(0, targetZones.Length); // NPC pilih zona target
-            Vector3 ballPos = target.position;
-            Vector3 targetPos = targetZones[zoneIndex].position;
-            Vector3 dir = (targetPos - ballPos).normalized;
-
-            // Simulasi input kiri/kanan untuk menentukan jenis pukulan
-            float simulatedInput = -1; // -1 = lob, 1 = smash
-
-            float forcePower;
-            if (simulatedInput < -0.3f)      // Lob
-            {
-                forcePower = lobForce;
-                dir.y = 1.0f;
-                forcePower *= 0.7f;
-                Debug.Log("🏐 NPC melakukan LOB!");
-            }
-            else if (simulatedInput > 0.3f)  // Smash
-            {
-                forcePower = longForce;
-                dir.y = -0.2f;
-                forcePower *= 1.7f;
-                Debug.Log("💥 NPC melakukan SMASH!");
-            }
-            else                             // Normal
-            {
-                forcePower = normalForce;
-                dir.y = 0.2f;
-                forcePower *= 1.2f;
-                Debug.Log("🎯 NPC melakukan pukulan NORMAL!");
-            }
-
-            ballRb.linearVelocity = Vector3.zero;
+            // Lepaskan dari tangan dan lempar ke atas
+            enemySwitchManager.ball.SetParent(null);
+            Rigidbody ballRb = enemySwitchManager.ball.GetComponent<Rigidbody>();
+            ballRb.isKinematic = false;
             ballRb.useGravity = true;
-            ballRb.AddForce(dir.normalized * forcePower, ForceMode.Impulse);
+            ballRb.linearVelocity = Vector3.up * servingHeight; // lempar ke atas
+            serveStage = 1;
+            gamerulemanager.barrierServe.SetActive(false);
         }
-
-        isSmashMode = false;
-        isActive = false;
-
-        // Setelah smash, aktifkan NPC berikutnya
-        FindFirstObjectByType<NPCManager>().OnNPCHit(this);
-
-    }
-
-
-    void OnCollisionStay(Collision other)
-    {
-        if (other.contacts.Length > 0)
+        else
         {
-            ContactPoint contact = other.contacts[0];
-            isGrounded = Vector3.Dot(contact.normal, Vector3.up) > 0.5f;
+            // Pukul ke arah lawan
+            hitPressed = true;
+            ballManager.isServingBall = true;
+            isServing = false;
+            serveStage = 0;
         }
     }
 
-    void OnCollisionExit(Collision other)
+    void PassBallInPlace()
     {
-        isGrounded = false;
+        ballManager.arenaSide = ArenaSide;
+
+        Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
+        if (hits.Length == 0) return;
+
+        Transform ball = hits[0].transform;
+
+        Vector3 targetPosition = hitPoint.position;
+
+        Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+        ballRb.linearVelocity = Vector3.zero;
+        ballRb.angularVelocity = Vector3.zero;
+        ballRb.useGravity = false;
+
+        ball.position = targetPosition;
     }
 
-    public void SetTarget(Transform newTarget)
+    private bool isPowerShootPending = false;
+    private float powerShootSlowTime = 0.5f;
+    private float powerShootTimer = 0f;
+    public float powerShootSpeed = 35f;
+
+    private float slowMotionDuration = 3f;
+    private float slowMotionTimer = 0f;
+    public float slowMotionScale = 0.3f; // 0.3 = 30% kecepatan normal
+    private bool isInSlowMotion = false;
+    void TryPowerShoot()
     {
-        target = newTarget;
-        isSmashMode = false;
+        if (!IsGrounded()) return;
+
+        gamerulemanager.UsePower(ArenaSide);
+
+        Debug.Log("🚀 Mulai PowerShoot + Slow Motion");
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        StartAutoChaseToBall();
+
+        isPowerShootPending = true;
+
+        // Aktifkan slow motion global
+        Time.timeScale = slowMotionScale;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale; // sesuaikan physics update
+        slowMotionTimer = slowMotionDuration;
+        isInSlowMotion = true;
+    }
+
+
+    void PowerShootBall(Transform ball)
+    {
+        slowMotionTimer = 0f;
+        ballManager.arenaSide = "";
+        ballManager.LastSideToHitTheBall = ArenaSide;
+        enemySwitchManager.hitCount = 0;
+        enemySwitchManager.ReturnToSingleControl(this.gameObject);
+
+        playerswitchManager.EnableAllControl();
+
+        int zoneIndex = GetZoneIndexFromInput(moveInput);
+        if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
+
+        Vector3 target = enemyZones[zoneIndex].position;
+        Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+        ballRb.useGravity = true;
+
+        Vector3 direction = (target - ball.position).normalized;
+        direction.y = Mathf.Clamp(direction.y, -0.3f, 0.2f); // bisa disesuaikan
+
+        ballRb.linearVelocity = direction * powerShootSpeed;
+
+        Debug.DrawLine(ball.position, target, Color.cyan, 2f);
+        Debug.Log("💥 PowerShoot ke zona " + zoneIndex + ", arah = " + direction);
+    }
+
+    void MoveToDefaultPas()
+    {
+        // Bergerak ke DefaultPosition jika belum sampai
+        Vector3 toDefault = DefaultPosition.position - transform.position;
+        Vector3 toDefaultXZ = new Vector3(toDefault.x, 0, toDefault.z);
+
+        if (toDefaultXZ.magnitude > 0.1f)
+        {
+            Vector3 moveDir = toDefaultXZ.normalized;
+            rb.linearVelocity = new Vector3(moveDir.x * moveSpeed, rb.linearVelocity.y, moveDir.z * moveSpeed);
+
+            // Hadapkan ke arah gerak
+            if (moveDir.magnitude > 0.1f && modelTransform != null)
+            {
+                modelTransform.forward = moveDir;
+            }
+        }
+        else
+        {
+            // Sudah sampai posisi, berhenti dan lihat ke kiri
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            if (modelTransform != null)
+            {
+                modelTransform.forward = Vector3.left;
+            }
+        }
     }
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectRadius);
+        Gizmos.color = Color.red;
+        if (hitPoint != null) Gizmos.DrawWireSphere(hitPoint.position, hitRadius);
 
-        // Radius deteksi NPC (sudah ada)
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectRadius);
+        Gizmos.color = Color.green;
+        if (groundCheck != null) Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
 
-        // Tambahan untuk visualize hitPoint
-        if (hitPoint != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(hitPoint.position, hitRadius);
-        }
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(targetBallXZPos, 0.3f);
     }
 
 }
