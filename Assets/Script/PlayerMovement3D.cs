@@ -48,6 +48,7 @@ public class PlayerMovement3D : MonoBehaviour
     public LayerMask ballLayer;
 
     private PlayerControls controls;
+    [SerializeField]
     private Rigidbody rb;
 
     private Vector2 moveInput;
@@ -78,6 +79,7 @@ public class PlayerMovement3D : MonoBehaviour
 
     BallBounce ballManager;
     PlayerSwitchManager playerSwitchManager;
+    GameRuleManager gamerulemanager;
 
     public Transform DefaultPosition;
     public GameObject activeSign;
@@ -86,6 +88,7 @@ public class PlayerMovement3D : MonoBehaviour
         playerSwitchManager = FindFirstObjectByType<PlayerSwitchManager>();
         controls = new PlayerControls();
         ballManager = FindFirstObjectByType<BallBounce>();
+        gamerulemanager = FindFirstObjectByType<GameRuleManager>();
 
         controls.Player.Move.performed += ctx => {
             if (isControlled) moveInput = ctx.ReadValue<Vector2>();
@@ -99,6 +102,9 @@ public class PlayerMovement3D : MonoBehaviour
         controls.Player.Hit.performed += _ => {
             if (CanReceiveInput()) hitPressed = true;
         };
+        controls.Player.PowerShoot.performed += _ => {
+            if (CanReceiveInput() && IsPowerReady()) TryPowerShoot();
+        };
         controls.Player.Serve.performed += _ => {
             if (isServing) StartServing();
         };
@@ -109,6 +115,27 @@ public class PlayerMovement3D : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         lastGroundMoveDir = Vector3.zero;
+    }
+
+    public void TeleChartoDefaultPos() {
+        Vector3 targetPos = DefaultPosition.position;
+
+        // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
+        Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
+
+        transform.position = newPos;
+        modelTransform.forward = Vector3.left;
+    }
+
+    public void TeleChartoHere(Transform target)
+    {
+        Vector3 targetPos = target.position;
+
+        // Ambil x & z dari DefaultPosition, y tetap dari posisi sekarang
+        Vector3 newPos = new Vector3(targetPos.x, 1.711f, targetPos.z);
+
+        transform.position = newPos;
+        modelTransform.forward = Vector3.left;
     }
 
     private bool CanReceiveInput()
@@ -124,6 +151,10 @@ public class PlayerMovement3D : MonoBehaviour
         }
 
         return true;
+    }
+
+    bool IsPowerReady() {
+        return gamerulemanager.playerPower > 0;
     }
 
     void OnEnable() => controls.Enable();
@@ -230,6 +261,18 @@ public class PlayerMovement3D : MonoBehaviour
 
     void Update()
     {
+        if (isInSlowMotion)
+        {
+            slowMotionTimer -= Time.unscaledDeltaTime;
+            if (slowMotionTimer <= 0f)
+            {
+                Time.timeScale = 1f;
+                Time.fixedDeltaTime = 0.02f;
+                isInSlowMotion = false;
+                Debug.Log("⏱️ Slow Motion selesai");
+            }
+        }
+
         if (isControlled) {
             if (IsGrounded())
             {
@@ -281,6 +324,7 @@ public class PlayerMovement3D : MonoBehaviour
     void HitBallToOtherSide()
     {
         ballManager.arenaSide = "";
+        ballManager.LastSideToHitTheBall = ArenaSide;
         playerSwitchManager.hitCount = 0;
         playerSwitchManager.ReturnToSingleControl(this.gameObject);
 
@@ -299,6 +343,7 @@ public class PlayerMovement3D : MonoBehaviour
     {
         ballManager.arenaSide = "";
         playerSwitchManager.hitCount = 0;
+        ballManager.LastSideToHitTheBall = ArenaSide;
         playerSwitchManager.ReturnToSingleControl(this.gameObject);
 
         int zoneIndex = GetZoneIndexFromInput(moveInput);
@@ -353,6 +398,7 @@ public class PlayerMovement3D : MonoBehaviour
     void PassBallInOwnArena()
     {
         ballManager.arenaSide = ArenaSide;
+        ballManager.LastSideToHitTheBall = ArenaSide;
         playerSwitchManager.hitCount++;
 
         Collider[] hits = Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer);
@@ -475,6 +521,7 @@ public class PlayerMovement3D : MonoBehaviour
             isDashingToBall = false;
             isAutoChasingBall = false;
 
+            MoveToDefaultPas();
             return;
         }
 
@@ -518,13 +565,32 @@ public class PlayerMovement3D : MonoBehaviour
                 }
                 else if (ball.position.y >= smashHeightThreshold)
                 {
-                    Debug.Log("🔥 Smash karena bola tinggi");
-                    SmashBall(ball);
+                    if (isPowerShootPending)
+                    {
+                        Debug.Log("💥 PowerShoot aktif!");
+                        PowerShootBall(ball);
+                        isPowerShootPending = false;
+                        powerShootTimer = powerShootSlowTime;
+                    }
+                    else
+                    {
+                        Debug.Log("🔥 Smash karena bola tinggi");
+                        SmashBall(ball);
+                    }
                 }
                 else
                 {
-                    Debug.Log("🏐 Hit biasa (bola belum cukup tinggi)");
-                    HitBallToOtherSide();
+                    if (isPowerShootPending)
+                    {
+                        Debug.Log("💥 PowerShoot aktif!");
+                        PowerShootBall(ball);
+                        isPowerShootPending = false;
+                        powerShootTimer = powerShootSlowTime;
+                    }
+                    else { 
+                        Debug.Log("🏐 Hit biasa (bola belum cukup tinggi)");
+                        HitBallToOtherSide();
+                    }
                 }
 
                 hasHitDuringJump = true;
@@ -711,6 +777,7 @@ public class PlayerMovement3D : MonoBehaviour
             ballRb.useGravity = true;
             ballRb.linearVelocity = Vector3.up * servingHeight; // lempar ke atas
             serveStage = 1;
+            gamerulemanager.barrierServe.SetActive(false);
         }
         else
         {
@@ -739,6 +806,86 @@ public class PlayerMovement3D : MonoBehaviour
         ballRb.useGravity = false;
 
         ball.position = targetPosition;
+    }
+
+    private bool isPowerShootPending = false;
+    private float powerShootSlowTime = 0.5f;
+    private float powerShootTimer = 0f;
+    public float powerShootSpeed = 35f;
+
+    private float slowMotionDuration = 3f;
+    private float slowMotionTimer = 0f;
+    public float slowMotionScale = 0.3f; // 0.3 = 30% kecepatan normal
+    private bool isInSlowMotion = false;
+    void TryPowerShoot()
+    {
+        if (!IsGrounded()) return;
+
+        gamerulemanager.UsePowerPlayer();
+
+        Debug.Log("🚀 Mulai PowerShoot + Slow Motion");
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        StartAutoChaseToBall();
+
+        isPowerShootPending = true;
+
+        // Aktifkan slow motion global
+        Time.timeScale = slowMotionScale;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale; // sesuaikan physics update
+        slowMotionTimer = slowMotionDuration;
+        isInSlowMotion = true;
+    }
+
+
+    void PowerShootBall(Transform ball)
+    {
+        slowMotionTimer = 0f;
+        ballManager.arenaSide = "";
+        ballManager.LastSideToHitTheBall = ArenaSide;
+        playerSwitchManager.hitCount = 0;
+        playerSwitchManager.ReturnToSingleControl(this.gameObject);
+
+        int zoneIndex = GetZoneIndexFromInput(moveInput);
+        if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
+
+        Vector3 target = enemyZones[zoneIndex].position;
+        Rigidbody ballRb = ball.GetComponent<Rigidbody>();
+        ballRb.useGravity = true;
+
+        Vector3 direction = (target - ball.position).normalized;
+        direction.y = Mathf.Clamp(direction.y, -0.3f, 0.2f); // bisa disesuaikan
+
+        ballRb.linearVelocity = direction * powerShootSpeed;
+
+        Debug.DrawLine(ball.position, target, Color.cyan, 2f);
+        Debug.Log("💥 PowerShoot ke zona " + zoneIndex + ", arah = " + direction);
+    }
+
+    void MoveToDefaultPas() {
+        // Bergerak ke DefaultPosition jika belum sampai
+        Vector3 toDefault = DefaultPosition.position - transform.position;
+        Vector3 toDefaultXZ = new Vector3(toDefault.x, 0, toDefault.z);
+
+        if (toDefaultXZ.magnitude > 0.1f)
+        {
+            Vector3 moveDir = toDefaultXZ.normalized;
+            rb.linearVelocity = new Vector3(moveDir.x * moveSpeed, rb.linearVelocity.y, moveDir.z * moveSpeed);
+
+            // Hadapkan ke arah gerak
+            if (moveDir.magnitude > 0.1f && modelTransform != null)
+            {
+                modelTransform.forward = moveDir;
+            }
+        }
+        else
+        {
+            // Sudah sampai posisi, berhenti dan lihat ke kiri
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            if (modelTransform != null)
+            {
+                modelTransform.forward = Vector3.left;
+            }
+        }
     }
 
     void OnDrawGizmosSelected()

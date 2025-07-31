@@ -11,13 +11,22 @@ public class BallBounce : MonoBehaviour
     public string arenaSide;
 
     PlayerSwitchManager playerswitchManager;
+    GameRuleManager gameruleManager;
 
-    public bool isServingBall=false;
+    public bool isServingBall = false;
+
+    public bool isAlreadyScored = false;
+
+    public PlayerType playerSide = PlayerType.Player1;
+    public PlayerType enemySide = PlayerType.Player2;
+
+    public string LastSideToHitTheBall = "";
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         playerswitchManager = FindFirstObjectByType<PlayerSwitchManager>();
+        gameruleManager = FindFirstObjectByType<GameRuleManager>();
     }
 
     void OnCollisionEnter(Collision collision)

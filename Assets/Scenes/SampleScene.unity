@@ -292,7 +292,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 32, y: -31}
+  m_AnchoredPosition: {x: 32, y: -32.500004}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &68293546
@@ -308,7 +308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8018868, g: 0.049172327, b: 0.049172327, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -345,6 +345,7 @@ GameObject:
   - component: {fileID: 79538758}
   - component: {fileID: 79538757}
   - component: {fileID: 79538756}
+  - component: {fileID: 79538759}
   m_Layer: 6
   m_Name: ArenaTile3
   m_TagString: EnemySide
@@ -442,6 +443,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 79538754}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &79538759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79538754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 3
+  isPlayerSide: 0
+  isOutzone: 0
 --- !u!1 &87583026
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,6 +470,7 @@ GameObject:
   - component: {fileID: 87583030}
   - component: {fileID: 87583029}
   - component: {fileID: 87583028}
+  - component: {fileID: 87583031}
   m_Layer: 6
   m_Name: ArenaTile (3)
   m_TagString: PlayerSide
@@ -551,6 +568,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 87583026}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &87583031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87583026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 2
+  isPlayerSide: 1
+  isOutzone: 0
 --- !u!1 &92243784
 GameObject:
   m_ObjectHideFlags: 0
@@ -750,6 +782,7 @@ GameObject:
   - component: {fileID: 133733818}
   - component: {fileID: 133733817}
   - component: {fileID: 133733816}
+  - component: {fileID: 133733819}
   m_Layer: 6
   m_Name: ArenaTile (7)
   m_TagString: PlayerSide
@@ -847,6 +880,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 133733814}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &133733819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 133733814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 6
+  isPlayerSide: 1
+  isOutzone: 0
 --- !u!1 &146527509
 GameObject:
   m_ObjectHideFlags: 0
@@ -1490,7 +1538,7 @@ Transform:
   m_GameObject: {fileID: 261416553}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.89, y: 1.76, z: 30.98033}
+  m_LocalPosition: {x: -7.89, y: 1.76, z: 52.51}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1513,6 +1561,10 @@ MonoBehaviour:
   playerAreaDirection: {x: 1, y: 0, z: 0}
   arenaSide: Enemy
   isServingBall: 0
+  isAlreadyScored: 0
+  playerSide: 1
+  enemySide: 2
+  LastSideToHitTheBall: 
 --- !u!1 &274261894
 GameObject:
   m_ObjectHideFlags: 0
@@ -2151,6 +2203,7 @@ Transform:
   - {fileID: 1074724204}
   - {fileID: 2040062128}
   - {fileID: 908316781}
+  - {fileID: 1220819795}
   - {fileID: 747480285}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2318,6 +2371,7 @@ GameObject:
   - component: {fileID: 467343873}
   - component: {fileID: 467343872}
   - component: {fileID: 467343871}
+  - component: {fileID: 467343874}
   m_Layer: 6
   m_Name: ArenaTile (8)
   m_TagString: PlayerSide
@@ -2415,6 +2469,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 467343869}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &467343874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467343869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 9
+  isPlayerSide: 1
+  isOutzone: 0
 --- !u!1 &506330524
 GameObject:
   m_ObjectHideFlags: 0
@@ -2564,6 +2633,7 @@ GameObject:
   - component: {fileID: 523203395}
   - component: {fileID: 523203394}
   - component: {fileID: 523203393}
+  - component: {fileID: 523203396}
   m_Layer: 6
   m_Name: ArenaTile (2)
   m_TagString: PlayerSide
@@ -2661,6 +2731,129 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 523203391}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &523203396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 523203391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 7
+  isPlayerSide: 1
+  isOutzone: 0
+--- !u!1 &571826511
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 571826512}
+  - component: {fileID: 571826515}
+  - component: {fileID: 571826514}
+  - component: {fileID: 571826513}
+  m_Layer: 0
+  m_Name: BarrierRight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &571826512
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 571826511}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.026, y: 0, z: -0.57}
+  m_LocalScale: {x: 1, y: 1, z: 0.182}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1220819795}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!65 &571826513
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 571826511}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &571826514
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 571826511}
+  m_Enabled: 0
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &571826515
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 571826511}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &574382215
 GameObject:
   m_ObjectHideFlags: 0
@@ -2673,6 +2866,7 @@ GameObject:
   - component: {fileID: 574382219}
   - component: {fileID: 574382218}
   - component: {fileID: 574382217}
+  - component: {fileID: 574382220}
   m_Layer: 6
   m_Name: ArenaTile (1)
   m_TagString: PlayerSide
@@ -2770,6 +2964,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 574382215}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &574382220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 574382215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 4
+  isPlayerSide: 1
+  isOutzone: 0
 --- !u!1 &580770330
 GameObject:
   m_ObjectHideFlags: 0
@@ -2894,7 +3103,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -31}
+  m_AnchoredPosition: {x: 0, y: -32.500004}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &583284189
@@ -2947,6 +3156,7 @@ GameObject:
   - component: {fileID: 626554294}
   - component: {fileID: 626554293}
   - component: {fileID: 626554292}
+  - component: {fileID: 626554295}
   m_Layer: 6
   m_Name: ArenaTile (5)
   m_TagString: PlayerSide
@@ -3044,6 +3254,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 626554290}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &626554295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 626554290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 8
+  isPlayerSide: 1
+  isOutzone: 0
 --- !u!1 &646588117
 GameObject:
   m_ObjectHideFlags: 0
@@ -3265,6 +3490,7 @@ GameObject:
   - component: {fileID: 712120317}
   - component: {fileID: 712120316}
   - component: {fileID: 712120315}
+  - component: {fileID: 712120318}
   m_Layer: 6
   m_Name: ArenaTile0
   m_TagString: EnemySide
@@ -3362,6 +3588,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712120313}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &712120318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712120313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 1
+  isPlayerSide: 0
+  isOutzone: 0
 --- !u!1 &747480284
 GameObject:
   m_ObjectHideFlags: 0
@@ -3469,6 +3710,114 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 747480284}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &810698954
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 810698955}
+  - component: {fileID: 810698958}
+  - component: {fileID: 810698957}
+  - component: {fileID: 810698956}
+  m_Layer: 0
+  m_Name: BarrierLeft
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &810698955
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810698954}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.026, y: 0, z: -19.5}
+  m_LocalScale: {x: 1, y: 1, z: 0.182}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1220819795}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!65 &810698956
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810698954}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &810698957
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810698954}
+  m_Enabled: 0
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &810698958
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810698954}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &814943363
 GameObject:
@@ -4055,6 +4404,7 @@ GameObject:
   - component: {fileID: 911533433}
   - component: {fileID: 911533432}
   - component: {fileID: 911533431}
+  - component: {fileID: 911533434}
   m_Layer: 6
   m_Name: Luar
   m_TagString: Untagged
@@ -4151,6 +4501,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 911533429}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &911533434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 911533429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 1
+  isPlayerSide: 0
+  isOutzone: 1
 --- !u!1 &919455566
 GameObject:
   m_ObjectHideFlags: 0
@@ -4163,6 +4528,7 @@ GameObject:
   - component: {fileID: 919455570}
   - component: {fileID: 919455569}
   - component: {fileID: 919455568}
+  - component: {fileID: 919455571}
   m_Layer: 6
   m_Name: ArenaTile4
   m_TagString: EnemySide
@@ -4260,6 +4626,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919455566}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &919455571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919455566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 4
+  isPlayerSide: 0
+  isOutzone: 0
 --- !u!1 &956247801
 GameObject:
   m_ObjectHideFlags: 0
@@ -4303,6 +4684,7 @@ GameObject:
   - component: {fileID: 965353113}
   - component: {fileID: 965353112}
   - component: {fileID: 965353111}
+  - component: {fileID: 965353114}
   m_Layer: 6
   m_Name: ArenaTile6
   m_TagString: EnemySide
@@ -4400,6 +4782,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 965353109}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &965353114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 965353109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 6
+  isPlayerSide: 0
+  isOutzone: 0
 --- !u!1 &980042880
 GameObject:
   m_ObjectHideFlags: 0
@@ -4412,6 +4809,7 @@ GameObject:
   - component: {fileID: 980042884}
   - component: {fileID: 980042883}
   - component: {fileID: 980042882}
+  - component: {fileID: 980042885}
   m_Layer: 6
   m_Name: ArenaTile
   m_TagString: PlayerSide
@@ -4509,6 +4907,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 980042880}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &980042885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 980042880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 1
+  isPlayerSide: 1
+  isOutzone: 0
 --- !u!1 &1037772903
 GameObject:
   m_ObjectHideFlags: 0
@@ -5021,6 +5434,7 @@ GameObject:
   - component: {fileID: 1152350281}
   - component: {fileID: 1152350280}
   - component: {fileID: 1152350279}
+  - component: {fileID: 1152350282}
   m_Layer: 6
   m_Name: ArenaTile (4)
   m_TagString: PlayerSide
@@ -5118,6 +5532,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1152350277}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1152350282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152350277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 5
+  isPlayerSide: 1
+  isOutzone: 0
 --- !u!1 &1188299413
 GameObject:
   m_ObjectHideFlags: 0
@@ -5161,6 +5590,7 @@ GameObject:
   - component: {fileID: 1190025592}
   - component: {fileID: 1190025591}
   - component: {fileID: 1190025590}
+  - component: {fileID: 1190025593}
   m_Layer: 6
   m_Name: ArenaTile (6)
   m_TagString: PlayerSide
@@ -5258,6 +5688,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1190025588}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1190025593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190025588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 3
+  isPlayerSide: 1
+  isOutzone: 0
 --- !u!1 &1195396018
 GameObject:
   m_ObjectHideFlags: 0
@@ -5395,6 +5840,39 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1217525536}
   m_CullTransparentMesh: 1
+--- !u!1 &1220819794
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1220819795}
+  m_Layer: 0
+  m_Name: Barrier
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1220819795
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1220819794}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.70710576, z: -0, w: 0.7071079}
+  m_LocalPosition: {x: -13.720001, y: 5.1114, z: 0.10000038}
+  m_LocalScale: {x: 18.842594, y: 11.22269, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 571826512}
+  - {fileID: 810698955}
+  m_Father: {fileID: 382070091}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1273077725
 GameObject:
   m_ObjectHideFlags: 0
@@ -5407,6 +5885,7 @@ GameObject:
   - component: {fileID: 1273077729}
   - component: {fileID: 1273077728}
   - component: {fileID: 1273077727}
+  - component: {fileID: 1273077730}
   m_Layer: 6
   m_Name: ArenaTile5
   m_TagString: EnemySide
@@ -5504,6 +5983,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1273077725}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1273077730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273077725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 5
+  isPlayerSide: 0
+  isOutzone: 0
 --- !u!1 &1280868910
 GameObject:
   m_ObjectHideFlags: 0
@@ -5563,7 +6057,7 @@ Transform:
   m_GameObject: {fileID: 1333977325}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.7784, z: 0}
+  m_LocalPosition: {x: 0, y: -0.05, z: 0}
   m_LocalScale: {x: 0.18445, y: 4.4164195, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5982,6 +6476,7 @@ GameObject:
   - component: {fileID: 1427585859}
   - component: {fileID: 1427585858}
   - component: {fileID: 1427585857}
+  - component: {fileID: 1427585860}
   m_Layer: 6
   m_Name: Luar (2)
   m_TagString: Untagged
@@ -6078,6 +6573,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1427585855}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1427585860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427585855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 1
+  isPlayerSide: 0
+  isOutzone: 1
 --- !u!1 &1473911234
 GameObject:
   m_ObjectHideFlags: 0
@@ -6090,6 +6600,7 @@ GameObject:
   - component: {fileID: 1473911238}
   - component: {fileID: 1473911237}
   - component: {fileID: 1473911236}
+  - component: {fileID: 1473911239}
   m_Layer: 6
   m_Name: Luar (3)
   m_TagString: Untagged
@@ -6186,6 +6697,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1473911234}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1473911239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1473911234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 1
+  isPlayerSide: 0
+  isOutzone: 1
 --- !u!1 &1485658604
 GameObject:
   m_ObjectHideFlags: 0
@@ -6198,6 +6724,7 @@ GameObject:
   - component: {fileID: 1485658608}
   - component: {fileID: 1485658607}
   - component: {fileID: 1485658606}
+  - component: {fileID: 1485658609}
   m_Layer: 6
   m_Name: ArenaTile7
   m_TagString: EnemySide
@@ -6295,6 +6822,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1485658604}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1485658609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1485658604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 7
+  isPlayerSide: 0
+  isOutzone: 0
 --- !u!1 &1487174362
 GameObject:
   m_ObjectHideFlags: 0
@@ -6523,18 +7065,21 @@ MonoBehaviour:
   ballLayer:
     serializedVersion: 2
     m_Bits: 128
+  rb: {fileID: 1502511174}
   lastGroundMoveDir: {x: 0, y: 0, z: 0}
   passHeight: 4
   passSpeedFactor: 1
   isControlled: 0
   ArenaSide: Player
-  DefaultPosition: {fileID: 0}
+  DefaultPosition: {fileID: 2029632395}
   activeSign: {fileID: 146527509}
   minDashDistance: 3
   maxDashTime: 0.4
   isServing: 0
   ballHolder: {fileID: 1363331022}
   servingHeight: 10
+  powerShootSpeed: 50
+  slowMotionScale: 0.3
 --- !u!1 &1504541800
 GameObject:
   m_ObjectHideFlags: 0
@@ -6896,7 +7441,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.16509432, g: 0.38215426, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6955,7 +7500,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -32, y: -31}
+  m_AnchoredPosition: {x: -32, y: -32.5}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1626176199
@@ -7100,6 +7645,170 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3.14937, y: -5.88, z: 29.27838}
   m_LocalScale: {x: 68.22662, y: 1, z: 71.39425}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1639947327
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1639947330}
+  - component: {fileID: 1639947329}
+  - component: {fileID: 1639947328}
+  m_Layer: 0
+  m_Name: GameRuleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &1639947328
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1639947327}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: bdbcdbca00ce82242be623b99cb24fa2, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &1639947329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1639947327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9efd1383b8cdcdd479dfd845eaf48832, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridPanels:
+  - {fileID: 506330526}
+  - {fileID: 322701642}
+  - {fileID: 1414777879}
+  - {fileID: 1608756864}
+  - {fileID: 1544172235}
+  - {fileID: 1217525538}
+  - {fileID: 1626176199}
+  - {fileID: 583284189}
+  - {fileID: 68293546}
+  playerFrontline: {fileID: 1502511173}
+  playerBackline: {fileID: 1749751874}
+  enemyFrontline: {fileID: 0}
+  enemyBackline: {fileID: 0}
+  playerServerSpawnPos: {fileID: 2113290770}
+  enemyServerSpawnPos: {fileID: 2105577407}
+  barrierServe: {fileID: 1220819794}
+  powerPlayertext: {fileID: 1801149870}
+  powerEnemytext: {fileID: 338503440}
+  scorePlayertext: {fileID: 338919801}
+  scoreEnemytext: {fileID: 1703104840}
+  suarapluit: {fileID: 1639947328}
+--- !u!4 &1639947330
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1639947327}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -8.8371, y: 0.67, z: 32.4314}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -7816,6 +8525,7 @@ GameObject:
   - component: {fileID: 1734524794}
   - component: {fileID: 1734524793}
   - component: {fileID: 1734524792}
+  - component: {fileID: 1734524795}
   m_Layer: 6
   m_Name: ArenaTile9
   m_TagString: EnemySide
@@ -7913,6 +8623,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1734524790}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1734524795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734524790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 9
+  isPlayerSide: 0
+  isOutzone: 0
 --- !u!1 &1747547166
 GameObject:
   m_ObjectHideFlags: 0
@@ -8099,18 +8824,21 @@ MonoBehaviour:
   ballLayer:
     serializedVersion: 2
     m_Bits: 128
+  rb: {fileID: 1749751876}
   lastGroundMoveDir: {x: 0, y: 0, z: 0}
   passHeight: 4
   passSpeedFactor: 1
   isControlled: 1
   ArenaSide: Player
-  DefaultPosition: {fileID: 0}
+  DefaultPosition: {fileID: 39485222}
   activeSign: {fileID: 1345753685}
   minDashDistance: 3
   maxDashTime: 0.4
   isServing: 0
   ballHolder: {fileID: 1504541801}
   servingHeight: 10
+  powerShootSpeed: 50
+  slowMotionScale: 0.3
 --- !u!54 &1749751876
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8223,7 +8951,7 @@ Transform:
   m_GameObject: {fileID: 1749751874}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.99, y: 1.711, z: 32.257}
+  m_LocalPosition: {x: -0.78999996, y: 1.711, z: 35.95}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8242,6 +8970,7 @@ GameObject:
   - component: {fileID: 1779628147}
   - component: {fileID: 1779628146}
   - component: {fileID: 1779628145}
+  - component: {fileID: 1779628148}
   m_Layer: 6
   m_Name: ArenaTile8
   m_TagString: EnemySide
@@ -8339,6 +9068,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1779628143}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1779628148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779628143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 8
+  isPlayerSide: 0
+  isOutzone: 0
 --- !u!1 &1780911497
 GameObject:
   m_ObjectHideFlags: 0
@@ -8595,6 +9339,7 @@ GameObject:
   - component: {fileID: 1831498490}
   - component: {fileID: 1831498489}
   - component: {fileID: 1831498488}
+  - component: {fileID: 1831498491}
   m_Layer: 6
   m_Name: ArenaTile1
   m_TagString: EnemySide
@@ -8692,6 +9437,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1831498486}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1831498491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1831498486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 2
+  isPlayerSide: 0
+  isOutzone: 0
 --- !u!1 &1844565010
 GameObject:
   m_ObjectHideFlags: 0
@@ -9070,6 +9830,7 @@ GameObject:
   - component: {fileID: 2040796870}
   - component: {fileID: 2040796869}
   - component: {fileID: 2040796868}
+  - component: {fileID: 2040796871}
   m_Layer: 6
   m_Name: Luar (1)
   m_TagString: Untagged
@@ -9166,6 +9927,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2040796866}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2040796871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040796866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a1447f41bfb947a022562553efd71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridId: 1
+  isPlayerSide: 0
+  isOutzone: 1
 --- !u!1 &2061470189
 GameObject:
   m_ObjectHideFlags: 0
@@ -9536,3 +10312,4 @@ SceneRoots:
   - {fileID: 1094528321}
   - {fileID: 107511929}
   - {fileID: 873765524}
+  - {fileID: 1639947330}

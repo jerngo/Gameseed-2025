@@ -144,6 +144,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PowerShoot"",
+                    ""type"": ""Button"",
+                    ""id"": ""64e42878-e529-497d-8915-73f8ae226455"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -300,6 +309,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Serve"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8d5d31d4-3506-4984-90ba-b9030d46e56a"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PowerShoot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -314,6 +334,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Hit = m_Player.FindAction("Hit", throwIfNotFound: true);
         m_Player_Lob = m_Player.FindAction("Lob", throwIfNotFound: true);
         m_Player_Serve = m_Player.FindAction("Serve", throwIfNotFound: true);
+        m_Player_PowerShoot = m_Player.FindAction("PowerShoot", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -400,6 +421,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Hit;
     private readonly InputAction m_Player_Lob;
     private readonly InputAction m_Player_Serve;
+    private readonly InputAction m_Player_PowerShoot;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -435,6 +457,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Serve".
         /// </summary>
         public InputAction @Serve => m_Wrapper.m_Player_Serve;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/PowerShoot".
+        /// </summary>
+        public InputAction @PowerShoot => m_Wrapper.m_Player_PowerShoot;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -479,6 +505,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Serve.started += instance.OnServe;
             @Serve.performed += instance.OnServe;
             @Serve.canceled += instance.OnServe;
+            @PowerShoot.started += instance.OnPowerShoot;
+            @PowerShoot.performed += instance.OnPowerShoot;
+            @PowerShoot.canceled += instance.OnPowerShoot;
         }
 
         /// <summary>
@@ -508,6 +537,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Serve.started -= instance.OnServe;
             @Serve.performed -= instance.OnServe;
             @Serve.canceled -= instance.OnServe;
+            @PowerShoot.started -= instance.OnPowerShoot;
+            @PowerShoot.performed -= instance.OnPowerShoot;
+            @PowerShoot.canceled -= instance.OnPowerShoot;
         }
 
         /// <summary>
@@ -590,5 +622,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnServe(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PowerShoot" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPowerShoot(InputAction.CallbackContext context);
     }
 }

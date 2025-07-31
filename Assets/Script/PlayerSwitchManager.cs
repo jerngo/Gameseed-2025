@@ -25,18 +25,19 @@ public class PlayerSwitchManager : MonoBehaviour
         EnableController(playerA, false);
         EnableController(playerB, true);
 
-        otherPlayer.GetComponent<PlayerMovement3D>().SetServer();
+        //otherPlayer.GetComponent<PlayerMovement3D>().SetServer();
+    }
+
+    public void PlayerServe() {
+        EnableController(playerA, false);
+        EnableController(playerB, true);
+        playerB.GetComponent<PlayerMovement3D>().SetServer();
     }
 
     private void Update()
     {
         //Debug ulang serve nanti hapus
-        if(Input.GetKey(KeyCode.R)){
-            EnableController(playerA, false);
-            EnableController(playerB, true);
-            playerB.GetComponent<PlayerMovement3D>().SetServer();
-
-        }
+        
     }
 
     void EnableController(GameObject player, bool enable)
