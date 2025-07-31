@@ -284,9 +284,7 @@ public class NPCMovement3D : MonoBehaviour
         {
             if (!isAutoChasingBall) // ⛔ jangan lakukan decision logic saat auto-chase
             {
-                if (!gamerulemanager.isServingRound) { 
-                    BotDecision();
-                }
+                BotDecision();
 
 
             }
@@ -373,14 +371,16 @@ public class NPCMovement3D : MonoBehaviour
         if (distanceToBall < actDistance)
         {
             if (!isInAction) {
-                isInAction = true;
+                
                 if (enemySwitchManager.hitCount < 2)
                 {
                     PassBallInOwnArena();
+   
                 }
                 else
                 {
                     HitBallToOtherSide();
+           
                 }
             }
             
