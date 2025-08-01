@@ -179,7 +179,7 @@ public class NPCMovement3D : MonoBehaviour
 
     void StartAutoChaseToBall()
     {
-        if (isAutoChasingBall == false) {
+        if (isAutoChasingBall == false && !alreadyHitInAir) {
             if (ballManager.arenaSide == ArenaSide)
             {
                 Collider[] balls = Physics.OverlapSphere(transform.position, 20f, ballLayer);
@@ -319,6 +319,8 @@ public class NPCMovement3D : MonoBehaviour
             {
                 isJumping = false;
                 hasHitDuringJump = false;
+                alreadyHitInAir = false;
+                isBotControlled = true;
             }
 
             if (IsGrounded() && isAutoChasingBall)
@@ -352,6 +354,7 @@ public class NPCMovement3D : MonoBehaviour
     }
 
     bool hasStartedAutoChase;
+    bool alreadyHitInAir;
     void BotDecision()
     {
 
@@ -536,55 +539,61 @@ public class NPCMovement3D : MonoBehaviour
 
     void TryPassToBall()
     {
+        if (!alreadyHitInAir) {
+            Collider[] balls = Physics.OverlapSphere(transform.position, 10f, ballLayer);
+            if (balls.Length == 0)
+            {
+                // Dash biasa
+                Vector3 dashDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+                if (dashDir.magnitude < 0.1f) dashDir = transform.forward;
 
-        Collider[] balls = Physics.OverlapSphere(transform.position, 10f, ballLayer);
-        if (balls.Length == 0)
-        {
-            // Dash biasa
-            Vector3 dashDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
-            if (dashDir.magnitude < 0.1f) dashDir = transform.forward;
+                rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
+                Debug.Log("🟡 Dash biasa (tanpa bola)");
+                return;
+            }
 
-            rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
-            Debug.Log("🟡 Dash biasa (tanpa bola)");
-            return;
+            Transform ball = balls[0].transform;
+            Vector3 toBall = ball.position - transform.position;
+            float distXZ = new Vector2(toBall.x, toBall.z).magnitude;
+            float verticalOffset = ball.position.y - transform.position.y;
+
+            if (IsGrounded())
+            {
+                if (Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer).Length > 0)
+                {
+                    Debug.Log("✅ Pass langsung saat di tanah");
+                    PassBallInOwnArena();
+                }
+                else if (verticalOffset > 1.2f && distXZ < 1)
+                {
+                    Debug.Log("⬆️ Bola tinggi, lompat & siapkan pass");
+                    rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                    StartAutoChaseToBall();
+
+                    pendingPass = true;
+                    targetPassBall = ball;
+                }
+                else
+                {
+                    // Aktifkan mode dash ke bola
+                    //Debug.Log("🏃 Dash otomatis ke bola");
+                    //isDashingToBall = true;
+                    //dashBallTarget = ball;
+                    //dashTime = maxDashTime;
+                }
+            }
         }
-
-        Transform ball = balls[0].transform;
-        Vector3 toBall = ball.position - transform.position;
-        float distXZ = new Vector2(toBall.x, toBall.z).magnitude;
-        float verticalOffset = ball.position.y - transform.position.y;
-
-        if (IsGrounded())
-        {
-            if (Physics.OverlapSphere(hitPoint.position, hitRadius, ballLayer).Length > 0)
-            {
-                Debug.Log("✅ Pass langsung saat di tanah");
-                PassBallInOwnArena();
-            }
-            else if (verticalOffset > 1.2f && distXZ < 1)
-            {
-                Debug.Log("⬆️ Bola tinggi, lompat & siapkan pass");
-                rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
-                StartAutoChaseToBall();
-
-                pendingPass = true;
-                targetPassBall = ball;
-            }
-            else
-            {
-                // Aktifkan mode dash ke bola
-                //Debug.Log("🏃 Dash otomatis ke bola");
-                //isDashingToBall = true;
-                //dashBallTarget = ball;
-                //dashTime = maxDashTime;
-            }
-        }
+        
     }
 
 
     void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
     {
+        alreadyHitInAir = true;
+        hasStartedAutoChase = false;
+        isBotControlled = false;
         ballManager.isServingBall = false;
+        StopMovement();
 
         Rigidbody rb = ball.GetComponent<Rigidbody>();
 
@@ -822,7 +831,7 @@ public class NPCMovement3D : MonoBehaviour
         Vector3 v = rb.linearVelocity;
 
         // Jika sedang auto chase, abaikan input movement manual
-        if (isAutoChasingBall && !IsGrounded())
+        if (isAutoChasingBall && !IsGrounded() && !alreadyHitInAir)
         {
             chaseTimer -= Time.fixedDeltaTime;
             Vector3 direction = (targetBallXZPos - transform.position);
@@ -840,6 +849,9 @@ public class NPCMovement3D : MonoBehaviour
             {
                 isAutoChasingBall = false;
             }
+        }
+        else {
+            isAutoChasingBall = false;
         }
 
 

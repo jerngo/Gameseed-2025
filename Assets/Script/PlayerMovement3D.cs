@@ -804,6 +804,7 @@ public class PlayerMovement3D : MonoBehaviour
             ballRb.isKinematic = false;
             ballRb.useGravity = true;
             ballRb.linearVelocity = Vector3.up * servingHeight; // lempar ke atas
+            ballManager.LastSideToHitTheBall = "Player";
             serveStage = 1;
             gamerulemanager.barrierServe.SetActive(false);
             gamerulemanager.isServingRound = false;
