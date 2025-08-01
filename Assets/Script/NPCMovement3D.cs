@@ -607,6 +607,12 @@ public class NPCMovement3D : MonoBehaviour
         Vector3 velocity = CalculateLaunchVelocity(ball.position, target, adjustedArcHeight);
         rb.linearVelocity = velocity;
 
+        // Tambahkan rotasi sesuai arah terbang bola
+        Vector3 flightDirection = velocity.normalized;
+        Vector3 spinAxis = Vector3.Cross(flightDirection, Vector3.up).normalized;
+        float spinStrength = 15f;
+        rb.angularVelocity = spinAxis * spinStrength;
+
         Debug.DrawLine(ball.position, target, Color.red, 2f);
         Debug.Log($"Ball launched to {target} with velocity {velocity}, arcHeight: {adjustedArcHeight}");
     }
@@ -834,6 +840,14 @@ public class NPCMovement3D : MonoBehaviour
         if (isAutoChasingBall && !IsGrounded() && !alreadyHitInAir)
         {
             chaseTimer -= Time.fixedDeltaTime;
+
+            // Cek apakah sudah terlalu tinggi
+            if (transform.position.y > 4.5f)
+            {
+                alreadyHitInAir = true; // opsional: untuk mencegah lompat ulang
+                return; // keluar dari chase
+            }
+
             Vector3 direction = (targetBallXZPos - transform.position);
             direction.y = 0f;
 
@@ -855,7 +869,7 @@ public class NPCMovement3D : MonoBehaviour
         }
 
 
-        if (isMovingToBall)
+        if (isMovingToBall && IsGrounded())
         {
             // Haluskan target agar tidak sering berubah
             smoothTargetPos = Vector3.Lerp(

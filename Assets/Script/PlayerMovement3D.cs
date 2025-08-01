@@ -510,6 +510,13 @@ public class PlayerMovement3D : MonoBehaviour
         rb.linearVelocity = velocity;
 
         moveInput = Vector2.zero;
+
+        // Tambahkan rotasi sesuai arah terbang bola
+        Vector3 flightDirection = velocity.normalized;
+        Vector3 spinAxis = Vector3.Cross(flightDirection, Vector3.up).normalized;
+        float spinStrength = 15f;
+        rb.angularVelocity = spinAxis * spinStrength;
+
         Debug.DrawLine(ball.position, target, Color.red, 2f);
         Debug.Log($"Ball launched to {target} with velocity {velocity}, arcHeight: {adjustedArcHeight}");
     }

@@ -60,7 +60,7 @@ public class GameRuleManager : MonoBehaviour
 
     private void Awake()
     {
-        StartCoroutine(InitGame(3f, true));
+        StartCoroutine(InitGame(1f, true));
     }
 
     IEnumerator InitGame(float duration, bool serveFromPlayer)
