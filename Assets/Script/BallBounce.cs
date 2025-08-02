@@ -22,6 +22,7 @@ public class BallBounce : MonoBehaviour
 
     public string LastSideToHitTheBall = "";
 
+    public AudioSource ballhitground;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -31,13 +32,6 @@ public class BallBounce : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.CompareTag(enemyTag))
-        {
-            //Vector3 bounceDir = (Vector3.up + playerAreaDirection).normalized;
-            //rb.linearVelocity = bounceDir * bounceForce;
-            //arenaSide = "Enemy";
-            //playerswitchManager.EnableAllControl();
-            //isServingBall = false;
-        }
+        ballhitground.Play();
     }
 }

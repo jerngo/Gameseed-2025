@@ -87,6 +87,12 @@ public class NPCMovement3D : MonoBehaviour
     private Vector3 smoothTargetPos;
 
     public bool isBotControlled = false;
+
+    public AudioSource hitSound;
+    public AudioSource smashSound;
+    public AudioSource jumpSound;
+    public AudioSource slowmoSound;
+
     void Awake()
     {
         enemySwitchManager = FindFirstObjectByType<NPCManager>();
@@ -185,6 +191,7 @@ public class NPCMovement3D : MonoBehaviour
                 Collider[] balls = Physics.OverlapSphere(transform.position, 20f, ballLayer);
                 if (balls.Length > 0)
                 {
+                    jumpSound.Play();
                     Transform ball = balls[0].transform;
 
                     // Ambil posisi XZ bola sebagai target
@@ -432,6 +439,7 @@ public class NPCMovement3D : MonoBehaviour
 
     void HitBallToOtherSide()
     {
+        hitSound.Play();
         ballManager.arenaSide = "";
         ballManager.LastSideToHitTheBall = ArenaSide;
         //enemySwitchManager.hitCount = 0;
@@ -452,6 +460,7 @@ public class NPCMovement3D : MonoBehaviour
 
     void SmashBall(Transform ball)
     {
+        smashSound.Play();
         ballManager.arenaSide = "";
         //enemySwitchManager.hitCount = 0;
         ballManager.LastSideToHitTheBall = ArenaSide;
@@ -589,6 +598,8 @@ public class NPCMovement3D : MonoBehaviour
 
     void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
     {
+        hitSound.Play();
+
         alreadyHitInAir = true;
         hasStartedAutoChase = false;
         isBotControlled = false;

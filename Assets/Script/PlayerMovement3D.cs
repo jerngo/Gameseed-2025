@@ -84,6 +84,12 @@ public class PlayerMovement3D : MonoBehaviour
 
     public Transform DefaultPosition;
     public GameObject activeSign;
+
+    public AudioSource hitSound;
+    public AudioSource smashSound;
+    public AudioSource jumpSound;
+    public AudioSource slowmoSound;
+
     void Awake()
     {
         playerSwitchManager = FindFirstObjectByType<PlayerSwitchManager>();
@@ -178,6 +184,8 @@ public class PlayerMovement3D : MonoBehaviour
             Collider[] balls = Physics.OverlapSphere(transform.position, 30f, ballLayer);
             if (balls.Length > 0)
             {
+                jumpSound.Play();
+
                 Transform ball = balls[0].transform;
 
                 // Ambil posisi XZ bola sebagai target
@@ -356,6 +364,8 @@ public class PlayerMovement3D : MonoBehaviour
 
     void SmashBall(Transform ball)
     {
+        smashSound.Play();
+
         ballManager.arenaSide = "";
         playerSwitchManager.hitCount = 0;
         ballManager.LastSideToHitTheBall = ArenaSide;
@@ -455,6 +465,7 @@ public class PlayerMovement3D : MonoBehaviour
             Vector3 dashDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
             if (dashDir.magnitude < 0.1f) dashDir = transform.forward;
 
+            jumpSound.Play();
             rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
             Debug.Log("🟡 Dash biasa (tanpa bola)");
             return;
@@ -475,6 +486,7 @@ public class PlayerMovement3D : MonoBehaviour
             else if (verticalOffset > 1.2f && distXZ < 1)
             {
                 Debug.Log("⬆️ Bola tinggi, lompat & siapkan pass");
+                jumpSound.Play();
                 rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
                 StartAutoChaseToBall();
 
@@ -495,6 +507,8 @@ public class PlayerMovement3D : MonoBehaviour
 
     void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
     {
+        hitSound.Play();
+
         ballManager.isServingBall = false;
 
         Rigidbody rb = ball.GetComponent<Rigidbody>();
@@ -858,6 +872,7 @@ public class PlayerMovement3D : MonoBehaviour
     {
         if (!IsGrounded()) return;
 
+        slowmoSound.Play();
         gamerulemanager.UsePower(ArenaSide);
 
         Debug.Log("🚀 Mulai PowerShoot + Slow Motion");
@@ -876,6 +891,8 @@ public class PlayerMovement3D : MonoBehaviour
 
     void PowerShootBall(Transform ball)
     {
+        smashSound.Play();
+
         slowMotionTimer = 0f;
         ballManager.arenaSide = "";
         ballManager.LastSideToHitTheBall = ArenaSide;
