@@ -15653,7 +15653,7 @@ MonoBehaviour:
   lobForce: 5
   normalForce: 7
   longForce: 12
-  serveSpeed: 20
+  serveSpeed: 17
   serveSpikeHeightMin: -0.2
   serveSpikeHeightMax: 0
   ownZones:
