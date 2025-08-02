@@ -67,12 +67,12 @@ public class GameRuleManager : MonoBehaviour
         enemyswitchManager = FindFirstObjectByType<NPCManager>();
         ballbounce = FindFirstObjectByType<BallBounce>();
 
-        
+        StartCoroutine(InitGame(1f, false));
     }
 
     private void Awake()
     {
-        StartCoroutine(InitGame(1f, true));
+        
     }
 
     IEnumerator InitGame(float duration, bool serveFromPlayer)
@@ -84,7 +84,7 @@ public class GameRuleManager : MonoBehaviour
             PlayerSetServe();
         }
         else {
-            PlayerSetServe();
+            EnemySetServe();
         }
 
        
@@ -139,8 +139,27 @@ public class GameRuleManager : MonoBehaviour
         thingtotele.position = newPos;
     }
 
-    void EnemySetServe() { 
-        
+    void EnemySetServe() {
+        playerswitchManager.hitCount = 0;
+        enemyswitchManager.hitCount = 0;
+
+        ballbounce.ToggleTrail(false);
+        suarapluit.Play();
+        isServingRound = true;
+
+        ballbounce.isAlreadyScored = false;
+
+        playerBackline.GetComponent<PlayerMovement3D>().TeleChartoDefaultPos();
+        playerFrontline.GetComponent<PlayerMovement3D>().TeleChartoDefaultPos();
+        enemyBackline.GetComponent<NPCMovement3D>().TeleChartoHere(enemyServerSpawnPos);
+        enemyFrontline.GetComponent<NPCMovement3D>().TeleChartoDefaultPos();
+
+        playerBackline.GetComponent<PlayerMovement3D>().isControlled = true;
+        playerFrontline.GetComponent<PlayerMovement3D>().isControlled = false;
+
+        barrierServe.SetActive(true);
+
+        enemyswitchManager.EnemyServe();
     }
 
     public void UsePower(string playertype) {

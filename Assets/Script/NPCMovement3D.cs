@@ -197,12 +197,12 @@ public class NPCMovement3D : MonoBehaviour
                 Collider[] balls = Physics.OverlapSphere(transform.position, 20f, ballLayer);
                 if (balls.Length > 0)
                 {
-                    jumpSound.Play();
+                    //jumpSound.Play();
                     Transform ball = balls[0].transform;
 
                     // Ambil posisi XZ bola sebagai target
                     targetBallXZPos = PredictBallLandingPosition(ball.GetComponent<Rigidbody>());
-                    isAutoChasingBall = true;
+                   isAutoChasingBall = true;
                     chaseTimer = maxChaseDuration;
 
                     Debug.Log("🔵 Auto kejar bola aktif: " + targetBallXZPos);
@@ -256,7 +256,7 @@ public class NPCMovement3D : MonoBehaviour
             else
             {
                 Debug.Log("Lompat karena tidak ada bola");
-                rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                //rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
                 StartAutoChaseToBall();
             }
         }
@@ -283,7 +283,7 @@ public class NPCMovement3D : MonoBehaviour
                 else
                 {
                     Debug.Log("Lompat karena tidak ada bola");
-                    rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                    //rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
                     StartAutoChaseToBall();
                 }
             }
@@ -309,8 +309,12 @@ public class NPCMovement3D : MonoBehaviour
         {
             if (isControlled) 
             {
-                if (!gamerulemanager.isServingRound) { 
+                if (!gamerulemanager.isServingRound)
+                {
                     BotDecision();
+                }
+                else {
+                    //StartServing();
                 }
             }
             else
@@ -412,6 +416,14 @@ public class NPCMovement3D : MonoBehaviour
                     else
                     {
                         Debug.Log("Lompat karena tidak ada bola");
+                        jumpSound.Play();
+                        // Hentikan pergerakan horizontal (X dan Z) dulu
+                        Vector3 velocity = rb.linearVelocity;
+                        velocity.x = 0f;
+                        velocity.z = 0f;
+                        rb.linearVelocity = velocity;
+
+                        // Tambahkan gaya loncat lurus ke atas
                         rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
                         StartAutoChaseToBall();
                         hasStartedAutoChase = true;
@@ -558,16 +570,16 @@ public class NPCMovement3D : MonoBehaviour
     {
         if (!alreadyHitInAir) {
             Collider[] balls = Physics.OverlapSphere(transform.position, 10f, ballLayer);
-            if (balls.Length == 0)
-            {
-                // Dash biasa
-                Vector3 dashDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
-                if (dashDir.magnitude < 0.1f) dashDir = transform.forward;
+            //if (balls.Length == 0)
+            //{
+            //    // Dash biasa
+            //    Vector3 dashDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+            //    if (dashDir.magnitude < 0.1f) dashDir = transform.forward;
 
-                rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
-                Debug.Log("🟡 Dash biasa (tanpa bola)");
-                return;
-            }
+            //    rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
+            //    Debug.Log("🟡 Dash biasa (tanpa bola)");
+            //    return;
+            //}
 
             Transform ball = balls[0].transform;
             Vector3 toBall = ball.position - transform.position;
@@ -584,7 +596,8 @@ public class NPCMovement3D : MonoBehaviour
                 else if (verticalOffset > 1.2f && distXZ < 1)
                 {
                     Debug.Log("⬆️ Bola tinggi, lompat & siapkan pass");
-                    rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+                    jumpSound.Play();
+                    //rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
                     StartAutoChaseToBall();
 
                     pendingPass = true;
@@ -723,7 +736,7 @@ public class NPCMovement3D : MonoBehaviour
                     else
                     {
                         Debug.Log("🔥 Smash karena bola tinggi");
-                        if (Random.Range(0, 10) > 4)
+                        if (Random.Range(0, 10) > 8)
                         {
                             HitBallToOtherSide();
 
@@ -746,7 +759,15 @@ public class NPCMovement3D : MonoBehaviour
                     else
                     {
                         Debug.Log("🏐 Hit biasa (bola belum cukup tinggi)");
-                        HitBallToOtherSide();
+                        if (Random.Range(0, 10) > 4)
+                        {
+                            HitBallToOtherSide();
+
+                        }
+                        else
+                        {
+                            SmashBall(ball);
+                        }
                     }
                 }
 
@@ -863,20 +884,34 @@ public class NPCMovement3D : MonoBehaviour
             // Cek apakah sudah terlalu tinggi
             if (transform.position.y > 4.5f)
             {
-                alreadyHitInAir = true; // opsional: untuk mencegah lompat ulang
-                return; // keluar dari chase
+                //alreadyHitInAir = true; // opsional: untuk mencegah lompat ulang
+                //return; // keluar dari chase
             }
 
             Vector3 direction = (targetBallXZPos - transform.position);
-            direction.y = 0f;
+            if (!isServing) { 
+                direction.y = 0f;
+          
+            }
 
             if (direction.magnitude > 0.1f && chaseTimer > 0f)
             {
-                rb.linearVelocity = new Vector3(
+                if (isServing)
+                {
+                    rb.linearVelocity = new Vector3(
                     direction.normalized.x * autoMoveSpeed,
-                    v.y,
+                     direction.normalized.y * autoMoveSpeed,
                     direction.normalized.z * autoMoveSpeed
                 );
+                }
+                else {
+                    //rb.linearVelocity = new Vector3(
+                    //direction.normalized.x * autoMoveSpeed,
+                    // v.y,
+                    //direction.normalized.z * autoMoveSpeed
+                    //);
+                }
+                
             }
             else
             {
@@ -884,7 +919,7 @@ public class NPCMovement3D : MonoBehaviour
             }
         }
         else {
-            isAutoChasingBall = false;
+            //isAutoChasingBall = false;
         }
 
 
@@ -982,32 +1017,49 @@ public class NPCMovement3D : MonoBehaviour
         enemySwitchManager.ball.SetParent(ballHolder, true);
         enemySwitchManager.ball.localPosition = Vector3.zero;
         enemySwitchManager.ball.localRotation = Quaternion.identity;
+
+        StartServing();
     }
 
+    bool isServingBegin;
     void StartServing()
     {
         if (!enemySwitchManager.ball) return;
+        if (!isServingBegin) {
+            isServingBegin = true;
+            StartCoroutine(WaitBeforeToss());
+        }
+    }
 
-        if (serveStage == 0)
-        {
-            serveSound.Play();
-            // Lepaskan dari tangan dan lempar ke atas
-            enemySwitchManager.ball.SetParent(null);
-            Rigidbody ballRb = enemySwitchManager.ball.GetComponent<Rigidbody>();
-            ballRb.isKinematic = false;
-            ballRb.useGravity = true;
-            ballRb.linearVelocity = Vector3.up * servingHeight; // lempar ke atas
-            serveStage = 1;
-            gamerulemanager.barrierServe.SetActive(false);
-        }
-        else
-        {
-            // Pukul ke arah lawan
-            hitPressed = true;
-            ballManager.isServingBall = true;
-            isServing = false;
-            serveStage = 0;
-        }
+    IEnumerator WaitBeforeToss() {
+        yield return new WaitForSeconds(2);
+
+        serveSound.Play();
+        // Lepaskan dari tangan dan lempar ke atas
+        enemySwitchManager.ball.SetParent(null);
+        Rigidbody ballRb = enemySwitchManager.ball.GetComponent<Rigidbody>();
+        ballRb.isKinematic = false;
+        ballRb.useGravity = true;
+        ballRb.linearVelocity = Vector3.up * servingHeight; // lempar ke atas
+        serveStage = 1;
+        ballManager.LastSideToHitTheBall = "Enemy";
+        gamerulemanager.barrierServe.SetActive(false);
+        ballManager.isServingBall = true;
+
+        yield return new WaitForSeconds(1f);
+        ballManager.arenaSide = "Enemy";
+        pendingPass = false;
+
+        jumpSound.Play();
+        rb.AddForce(Vector3.up * 15, ForceMode.VelocityChange);
+        isServingBegin = false;
+        isServing = false;
+
+        yield return new WaitForSeconds(1f);
+        isControlled = false;
+        gamerulemanager.isServingRound = false;
+        ballManager.isServingBall = false;
+        serveStage = 0;
     }
 
     void PassBallInPlace()

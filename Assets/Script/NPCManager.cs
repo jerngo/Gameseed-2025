@@ -34,7 +34,7 @@ public class NPCManager : MonoBehaviour
         //otherPlayer.GetComponent<PlayerMovement3D>().SetServer();
     }
 
-    public void PlayerServe()
+    public void EnemyServe()
     {
         EnableController(playerA, false);
         EnableController(playerB, true);
