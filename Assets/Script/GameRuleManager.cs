@@ -50,6 +50,16 @@ public class GameRuleManager : MonoBehaviour
     AudioSource suarapluit;
 
     public AudioSource bolaMasuk;
+    public AudioSource powerUp;
+
+    public RawImage playerpower1;
+    public RawImage playerpower2;
+    public RawImage playerpower3;
+
+    public RawImage enemypower1;
+    public RawImage enemypower2;
+    public RawImage enemypower3;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -80,6 +90,16 @@ public class GameRuleManager : MonoBehaviour
        
     }
 
+    void UpdateStars(int score, RawImage img1, RawImage img2, RawImage img3)
+    {
+        Color activeColor = new Color32(254, 196, 33, 255);
+        Color inactiveColor = Color.white;
+
+        img1.color = (score >= 1) ? activeColor : inactiveColor;
+        img2.color = (score >= 2) ? activeColor : inactiveColor;
+        img3.color = (score >= 3) ? activeColor : inactiveColor;
+    }
+
     private void Update()
     {
         if (Input.GetKey(KeyCode.R)) {
@@ -91,7 +111,7 @@ public class GameRuleManager : MonoBehaviour
     void PlayerSetServe() {
         playerswitchManager.hitCount = 0;
         enemyswitchManager.hitCount = 0;
-
+        ballbounce.ToggleTrail(false);
         suarapluit.Play();
         isServingRound = true;
 
@@ -127,11 +147,13 @@ public class GameRuleManager : MonoBehaviour
         if (playertype == "Player")
         {
             playerPower--;
-            powerPlayertext.text = $"Power: {playerPower}";
+            UpdateStars(playerPower, playerpower1, playerpower2, playerpower3);
+            powerPlayertext.text = $"Power: {playerPower}"; 
         }
         else if (playertype == "Enemy")
         {
             enemyPower--;
+            UpdateStars(enemyPower, enemypower1, enemypower2, enemypower3);
             powerEnemytext.text = $"Power: {enemyPower}";
         }
     }
@@ -166,10 +188,10 @@ public class GameRuleManager : MonoBehaviour
 
             if (player == PlayerType.Player1)
             {
-                color = Color.blue;
+                color = new Color32(100, 143, 163, 255);
             }
             else if (player == PlayerType.Player2) { 
-                color = Color.red;
+                color = new Color32(160, 39, 1, 255); ;
             }
 
             gridPanels[position].color = color;
@@ -201,13 +223,22 @@ public class GameRuleManager : MonoBehaviour
                 // Tambah power
                 if (player == PlayerType.Player1)
                 {
-                    playerPower++;
-                    powerPlayertext.text = $"Power: {playerPower}";
+                    powerUp.Play();
+                    if (playerPower < 3) { 
+                        playerPower++;
+                        UpdateStars(playerPower, playerpower1, playerpower2, playerpower3);
+                        powerPlayertext.text = $"Power: {playerPower}";
+                    
+                    }
                 }
                 else if (player == PlayerType.Player2)
                 {
-                    enemyPower++;
-                    powerEnemytext.text = $"Power: {enemyPower}";
+                    if (enemyPower < 3) { 
+                        powerUp.Play();
+                        enemyPower++;
+                        UpdateStars(enemyPower, enemypower1, enemypower2, enemypower3);
+                        powerEnemytext.text = $"Power: {enemyPower}";
+                    }
                 }
 
                 // Reset semua mark & warna milik player pemenang

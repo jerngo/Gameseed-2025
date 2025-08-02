@@ -89,6 +89,7 @@ public class PlayerMovement3D : MonoBehaviour
     public AudioSource smashSound;
     public AudioSource jumpSound;
     public AudioSource slowmoSound;
+    public AudioSource serveSOund;
 
     public Animator anim;
     void Awake()
@@ -419,6 +420,8 @@ public class PlayerMovement3D : MonoBehaviour
         }
 
         ballManager.isServingBall = false;
+
+        CameraShaker.shaker.ShakeCamera(2f, 3f, 0.3f);
         Debug.DrawLine(ball.position, target, Color.yellow, 2f);
         Debug.Log("🔥 Smash! Ke zona " + zoneIndex + ", jarak = " + distanceXZ.ToString("F2") + ", Y = " + dynamicY.ToString("F2"));
     }
@@ -827,7 +830,9 @@ public class PlayerMovement3D : MonoBehaviour
 
         if (serveStage == 0)
         {
+            serveSOund.Play();
             // Lepaskan dari tangan dan lempar ke atas
+            ballManager.ToggleTrail(false);
             playerSwitchManager.ball.SetParent(null);
             Rigidbody ballRb = playerSwitchManager.ball.GetComponent<Rigidbody>();
             ballRb.isKinematic = false;
@@ -840,6 +845,7 @@ public class PlayerMovement3D : MonoBehaviour
         }
         else
         {
+            ballManager.ToggleTrail(true);
             // Pukul ke arah lawan
             hitPressed = true;
             ballManager.isServingBall = true;
@@ -923,6 +929,7 @@ public class PlayerMovement3D : MonoBehaviour
 
         ballRb.linearVelocity = direction * powerShootSpeed;
 
+        CameraShaker.shaker.ShakeCamera(2f, 3f, 0.3f);
         Debug.DrawLine(ball.position, target, Color.cyan, 2f);
         Debug.Log("💥 PowerShoot ke zona " + zoneIndex + ", arah = " + direction);
     }
@@ -950,6 +957,10 @@ public class PlayerMovement3D : MonoBehaviour
             if (modelTransform != null)
             {
                 modelTransform.forward = Vector3.left;
+                if (anim != null)
+                {
+                    anim.SetFloat("Speed", 0);
+                }
             }
         }
     }

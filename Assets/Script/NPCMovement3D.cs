@@ -92,7 +92,7 @@ public class NPCMovement3D : MonoBehaviour
     public AudioSource smashSound;
     public AudioSource jumpSound;
     public AudioSource slowmoSound;
-
+    public AudioSource serveSound;
     public Animator anim;
     void Awake()
     {
@@ -518,6 +518,8 @@ public class NPCMovement3D : MonoBehaviour
         }
 
         ballManager.isServingBall = false;
+
+        CameraShaker.shaker.ShakeCamera(2f, 3f, 0.3f);
         Debug.DrawLine(ball.position, target, Color.yellow, 2f);
         Debug.Log("🔥 Smash! Ke zona " + zoneIndex + ", jarak = " + distanceXZ.ToString("F2") + ", Y = " + dynamicY.ToString("F2"));
     }
@@ -988,6 +990,7 @@ public class NPCMovement3D : MonoBehaviour
 
         if (serveStage == 0)
         {
+            serveSound.Play();
             // Lepaskan dari tangan dan lempar ke atas
             enemySwitchManager.ball.SetParent(null);
             Rigidbody ballRb = enemySwitchManager.ball.GetComponent<Rigidbody>();

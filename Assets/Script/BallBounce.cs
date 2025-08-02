@@ -23,15 +23,24 @@ public class BallBounce : MonoBehaviour
     public string LastSideToHitTheBall = "";
 
     public AudioSource ballhitground;
+
+    public TrailRenderer trail;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         playerswitchManager = FindFirstObjectByType<PlayerSwitchManager>();
         gameruleManager = FindFirstObjectByType<GameRuleManager>();
+        trail.enabled = false;
+
     }
 
     void OnCollisionEnter(Collision collision)
     {
         //ballhitground.Play();
     }
+
+    public void ToggleTrail(bool toggle) {
+        trail.enabled = toggle;
+    }
+
 }

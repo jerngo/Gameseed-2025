@@ -36,4 +36,5 @@ public class CameraFollowWithLimit : MonoBehaviour
         // Posisi Z dari cameraTarget tidak diubah agar kamera tetap konsisten
         cameraTarget.position = new Vector3(clampedX, clampedY, cameraTarget.position.z);
     }
+
 }
