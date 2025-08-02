@@ -29,7 +29,7 @@ public class NPCManager : MonoBehaviour
         otherPlayer = playerB;
 
         EnableController(playerA, false);
-        EnableController(playerB, true);
+        EnableController(playerB, false);
 
         //otherPlayer.GetComponent<PlayerMovement3D>().SetServer();
     }

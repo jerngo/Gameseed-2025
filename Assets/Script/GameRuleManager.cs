@@ -48,6 +48,8 @@ public class GameRuleManager : MonoBehaviour
 
     [SerializeField]
     AudioSource suarapluit;
+
+    public AudioSource bolaMasuk;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -135,7 +137,7 @@ public class GameRuleManager : MonoBehaviour
     }
 
     public void AddScore(PlayerType player) {
-
+        bolaMasuk.Play();
         if (player == PlayerType.Player1) {
             playerScore++;
             scorePlayertext.text = playerScore.ToString();

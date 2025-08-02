@@ -93,6 +93,7 @@ public class NPCMovement3D : MonoBehaviour
     public AudioSource jumpSound;
     public AudioSource slowmoSound;
 
+    public Animator anim;
     void Awake()
     {
         enemySwitchManager = FindFirstObjectByType<NPCManager>();
@@ -129,6 +130,11 @@ public class NPCMovement3D : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
         lastGroundMoveDir = Vector3.zero;
         isMovingToBall = false;
+
+        if (anim != null)
+        {
+            anim.SetFloat("Speed", 0);
+        }
     }
 
     public void TeleChartoDefaultPos()
@@ -902,6 +908,10 @@ public class NPCMovement3D : MonoBehaviour
                 isMovingToBall = false;
 
                 Debug.Log("🟢 Sampai ke posisi prediksi bola (stabil).");
+                if (anim != null)
+                {
+                    anim.SetFloat("Speed", 0);
+                }
             }
             else
             {
@@ -913,6 +923,10 @@ public class NPCMovement3D : MonoBehaviour
                     moveTarget.z * moveSpeed
                 );
 
+                if (anim != null)
+                {
+                    anim.SetFloat("Speed", 1);
+                }
                 // Rotasi model hanya kalau agak jauh dari target
                 if (modelTransform != null && distance > 0.5f) // rotasi hanya saat > 0.5m dari target
                 {
@@ -930,6 +944,9 @@ public class NPCMovement3D : MonoBehaviour
 
             return; // Hindari gerakan lain saat sedang bergerak ke bola
         }
+
+        
+
     }
 
 
@@ -1079,6 +1096,10 @@ public class NPCMovement3D : MonoBehaviour
             if (moveDir.magnitude > 0.1f && modelTransform != null)
             {
                 modelTransform.forward = moveDir;
+                if (anim != null)
+                {
+                    anim.SetFloat("Speed", 1);
+                }
             }
         }
         else
@@ -1088,6 +1109,10 @@ public class NPCMovement3D : MonoBehaviour
             if (modelTransform != null)
             {
                 modelTransform.forward = Vector3.right;
+                if (anim != null)
+                {
+                    anim.SetFloat("Speed", 0);
+                }
             }
         }
     }

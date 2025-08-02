@@ -32,6 +32,6 @@ public class BallBounce : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        ballhitground.Play();
+        //ballhitground.Play();
     }
 }

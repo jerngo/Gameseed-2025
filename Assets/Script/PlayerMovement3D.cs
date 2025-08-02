@@ -90,6 +90,7 @@ public class PlayerMovement3D : MonoBehaviour
     public AudioSource jumpSound;
     public AudioSource slowmoSound;
 
+    public Animator anim;
     void Awake()
     {
         playerSwitchManager = FindFirstObjectByType<PlayerSwitchManager>();
@@ -770,6 +771,13 @@ public class PlayerMovement3D : MonoBehaviour
         {
             // Hanya apply input move jika tidak auto chase
             rb.linearVelocity = new Vector3(moveDir.x * moveSpeed, v.y, moveDir.z * moveSpeed);
+        }
+
+        if (anim != null)
+        {
+            Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            float speed = horizontalVelocity.magnitude;
+            anim.SetFloat("Speed", speed);
         }
     }
 
