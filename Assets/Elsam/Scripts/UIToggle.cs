@@ -9,6 +9,7 @@ public class UIToggle : MonoBehaviour
 
     [Header("Animation")]
     public float duration = 0.3f;
+    public float delayIfToHideNull = 0f;
     public Ease easeIn = Ease.OutBack;
     public Ease easeOut = Ease.InBack;
 
@@ -24,7 +25,6 @@ public class UIToggle : MonoBehaviour
         {
             firstHide.transform.DOKill();
 
-            // Pastikan starting scale-nya benar (kalau sebelumnya diubah-ubah)
             if (firstHide.transform.localScale == Vector3.zero)
                 firstHide.transform.localScale = Vector3.one;
 
@@ -33,7 +33,6 @@ public class UIToggle : MonoBehaviour
                 {
                     firstHide.SetActive(false);
 
-                    // Aktifkan dan animasikan yang ingin ditampilkan
                     if (thenShow != null)
                     {
                         thenShow.SetActive(true);
@@ -47,10 +46,16 @@ public class UIToggle : MonoBehaviour
         {
             if (thenShow != null)
             {
+                float delay = (firstHide == null || !firstHide.activeSelf) ? delayIfToHideNull : 0f;
+
                 thenShow.SetActive(true);
                 thenShow.transform.DOKill();
                 thenShow.transform.localScale = Vector3.zero;
-                thenShow.transform.DOScale(1f, duration).SetEase(easeIn);
+
+                thenShow.transform
+                    .DOScale(1f, duration)
+                    .SetDelay(delay)
+                    .SetEase(easeIn);
             }
         }
     }
