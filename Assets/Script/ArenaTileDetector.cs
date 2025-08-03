@@ -27,6 +27,7 @@ public class ArenaTileDetector : MonoBehaviour
                         {
                             gameRuleManager.AddMark(boardIndex, ball.enemySide);
                             ball.isAlreadyScored = true;
+                            gameRuleManager.DIsableHitMark();
                         }
                     }
                     else
@@ -35,6 +36,7 @@ public class ArenaTileDetector : MonoBehaviour
                         {
                             gameRuleManager.AddMark(boardIndex, ball.playerSide);
                             ball.isAlreadyScored = true;
+                            gameRuleManager.DIsableHitMark();
                         }
                     }
                 }
@@ -45,11 +47,13 @@ public class ArenaTileDetector : MonoBehaviour
                         {
                             gameRuleManager.AddScore(ball.enemySide, false);
                             ball.isAlreadyScored = true;
+                            gameRuleManager.DIsableHitMark();
                         }
                         else
                         {
                             gameRuleManager.AddScore(ball.playerSide, false);
                             ball.isAlreadyScored = true;
+                            gameRuleManager.DIsableHitMark();
                         }
                     }
                         

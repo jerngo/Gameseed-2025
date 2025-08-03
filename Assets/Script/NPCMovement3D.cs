@@ -532,6 +532,10 @@ public class NPCMovement3D : MonoBehaviour
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
 
         Vector3 target = enemyZones[zoneIndex].position;
+        Vector3 landSpot = target;
+        landSpot.y = 0.71f;
+
+        gamerulemanager.SpawnMarkHitLand(true, landSpot);
         LaunchBallToTarget(ball, target, hitForce);
     }
 
@@ -553,6 +557,10 @@ public class NPCMovement3D : MonoBehaviour
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
 
         Vector3 target = enemyZones[zoneIndex].position;
+        Vector3 landSpot = target;
+        landSpot.y = 0.71f;
+
+        gamerulemanager.SpawnMarkHitLand(true, landSpot);
 
         Rigidbody ballRb = ball.GetComponent<Rigidbody>();
         ballRb.useGravity = true;
@@ -618,6 +626,10 @@ public class NPCMovement3D : MonoBehaviour
         if (zoneIndex < 0 || zoneIndex >= ownZones.Length || ownZones[zoneIndex] == null) return;
 
         Vector3 target = ownZones[zoneIndex].position;
+        Vector3 landSpot = target;
+        landSpot.y = 0.71f;
+
+        gamerulemanager.SpawnMarkHitLand(true, landSpot);
         LaunchBallToTarget(ball, target, lobForce);
 
         enemySwitchManager.ReturnToSingleControl(this.gameObject);

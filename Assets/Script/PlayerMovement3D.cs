@@ -428,6 +428,10 @@ public class PlayerMovement3D : MonoBehaviour
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
 
         Vector3 target = enemyZones[zoneIndex].position;
+        Vector3 landSpot = target;
+        landSpot.y = 0.71f;
+
+        gamerulemanager.SpawnMarkHitLand(true, landSpot);
 
         moveInput = Vector2.zero;
 
@@ -454,6 +458,10 @@ public class PlayerMovement3D : MonoBehaviour
 
         Vector3 target = enemyZones[zoneIndex].position;
 
+        Vector3 landSpot = target;
+        landSpot.y = 0.71f;
+
+        gamerulemanager.SpawnMarkHitLand(true, landSpot);
         moveInput = Vector2.zero;
 
         Rigidbody ballRb = ball.GetComponent<Rigidbody>();
@@ -485,6 +493,8 @@ public class PlayerMovement3D : MonoBehaviour
         direction.y = dynamicY;
         direction.Normalize();
 
+        
+
         if (!ballManager.isServingBall)
         {
             ballRb.linearVelocity = direction * smashSpeed;
@@ -498,6 +508,8 @@ public class PlayerMovement3D : MonoBehaviour
         CameraShaker.shaker.ShakeCamera(2f, 3f, 0.3f);
         Debug.DrawLine(ball.position, target, Color.yellow, 2f);
         Debug.Log("🔥 Smash! Ke zona " + zoneIndex + ", jarak = " + distanceXZ.ToString("F2") + ", Y = " + dynamicY.ToString("F2"));
+
+        
     }
 
 
@@ -522,6 +534,11 @@ public class PlayerMovement3D : MonoBehaviour
         moveInput = Vector2.zero;
 
         Vector3 target = ownZones[zoneIndex].position;
+        Vector3 landSpot = target;
+        landSpot.y = 0.71f;
+
+        gamerulemanager.SpawnMarkHitLand(true, landSpot);
+
         LaunchBallToTarget(ball, target, lobForce);
 
         playerSwitchManager.ReturnToSingleControl(this.gameObject);
@@ -1051,6 +1068,11 @@ public class PlayerMovement3D : MonoBehaviour
         if (zoneIndex < 0 || zoneIndex >= enemyZones.Length || enemyZones[zoneIndex] == null) return;
 
         Vector3 target = enemyZones[zoneIndex].position;
+        Vector3 landSpot = target;
+        landSpot.y = 0.71f;
+
+        gamerulemanager.SpawnMarkHitLand(true, landSpot);
+
         Rigidbody ballRb = ball.GetComponent<Rigidbody>();
         ballRb.useGravity = true;
 

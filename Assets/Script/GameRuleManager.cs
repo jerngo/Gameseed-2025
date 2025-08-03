@@ -83,6 +83,23 @@ public class GameRuleManager : MonoBehaviour
         
     }
 
+    public GameObject prefabMarkHitLand;
+
+    public void SpawnMarkHitLand(bool isVisible, Vector3 position) {
+        if (isVisible)
+        {
+            prefabMarkHitLand.SetActive(true);
+            prefabMarkHitLand.transform.position = position;
+        }
+        else {
+            prefabMarkHitLand.SetActive(false);
+        }
+    }
+
+    public void DIsableHitMark() {
+        prefabMarkHitLand.SetActive(false);
+    }
+
     IEnumerator InitGame(float duration, bool serveFromPlayer)
     {
         yield return new WaitForSeconds(duration); // tunggu 2 detik
