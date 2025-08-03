@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections;
+using DG.Tweening;
 
 public class GameRuleManager : MonoBehaviour
 {
@@ -205,7 +206,7 @@ public class GameRuleManager : MonoBehaviour
                 gameSettings.Loser2 = gameSettings.EnemyCharacter2;
 
                 gameSettings.winnerName = "Player";
-
+                ShowGameEndCaption();
                 loadingScript.EaseIn(3);
             }
             else { 
@@ -224,7 +225,7 @@ public class GameRuleManager : MonoBehaviour
                 gameSettings.Winner2 = gameSettings.EnemyCharacter2;
 
                 gameSettings.winnerName = "Enemy";
-
+                ShowGameEndCaption();
                 loadingScript.EaseIn(3);
             }
             else { 
@@ -346,4 +347,19 @@ public class GameRuleManager : MonoBehaviour
         // Jika tidak ketemu, fallback ke posisi bola saat ini
         return new Vector3(position.x, transform.position.y, position.z);
     }
+
+    public GameObject gameCaption;
+    public float durationZoom;
+    public float textSize = 5.2426f;
+    public Ease easeIn = Ease.OutBack;
+    void ShowGameEndCaption() {
+        gameCaption.SetActive(true);
+        gameCaption.transform.DOKill();
+        gameCaption.transform.localScale = Vector3.zero;
+        gameCaption.transform.DOScale(textSize, durationZoom).SetEase(easeIn).OnComplete(() =>
+        {
+            
+        });
+    }
+
 }

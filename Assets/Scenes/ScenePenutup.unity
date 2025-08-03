@@ -10509,8 +10509,8 @@ RectTransform:
   - {fileID: 1801149869}
   - {fileID: 338503439}
   - {fileID: 377908376}
-  - {fileID: 1352772963}
   - {fileID: 927635712}
+  - {fileID: 1352772963}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -13206,7 +13206,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1352772963
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19210,6 +19210,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 878ea4bcdd2c8a444a14651e072dfe2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loadingManager: {fileID: 396973225}
+  duration: 5
+  sceneIndexToGo: 0
 --- !u!82 &1950854087
 AudioSource:
   m_ObjectHideFlags: 0
