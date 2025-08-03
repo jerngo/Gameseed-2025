@@ -3070,7 +3070,7 @@ MonoBehaviour:
   - {fileID: 223111205}
   m_EndBones: []
   m_Material: {fileID: 0}
-  m_StartDepth: 0
+  m_StartDepth: 1
   m_SiblingConstraints: 0
   m_ClosedSiblings: 0
   m_SiblingRotationConstraints: 1
@@ -15410,7 +15410,7 @@ MonoBehaviour:
   - {fileID: 141261869}
   m_EndBones: []
   m_Material: {fileID: 0}
-  m_StartDepth: 0
+  m_StartDepth: 1
   m_SiblingConstraints: 0
   m_ClosedSiblings: 0
   m_SiblingRotationConstraints: 1
@@ -18465,7 +18465,7 @@ MonoBehaviour:
   - {fileID: 1002568995}
   m_EndBones: []
   m_Material: {fileID: 0}
-  m_StartDepth: 0
+  m_StartDepth: 1
   m_SiblingConstraints: 0
   m_ClosedSiblings: 0
   m_SiblingRotationConstraints: 1
@@ -23947,7 +23947,7 @@ MonoBehaviour:
   - {fileID: 102370442}
   m_EndBones: []
   m_Material: {fileID: 0}
-  m_StartDepth: 0
+  m_StartDepth: 1
   m_SiblingConstraints: 0
   m_ClosedSiblings: 0
   m_SiblingRotationConstraints: 1
