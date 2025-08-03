@@ -285,6 +285,15 @@ public class PlayerMovement3D : MonoBehaviour
 
     void Update()
     {
+        bool isIdle = rb.linearVelocity.magnitude < 0.1f;
+        if (isIdle)
+        {
+            if (anim != null)
+            {
+                anim.SetFloat("Speed", 0);
+            }
+        }
+
         if (IsGrounded())
         {
             if (anim != null)
