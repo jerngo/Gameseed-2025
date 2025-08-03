@@ -29,20 +29,26 @@ public class IntroManager : MonoBehaviour
         player2.transform.localPosition = new Vector3(0f, -1.04f, 0f);
         player2.transform.localRotation = Quaternion.identity;
         player2.transform.localScale = Vector3.one;
-        player2.GetComponent<Animator>().runtimeAnimatorController = animatorContHome;
+        Animator animPlayer2 = player2.GetComponent<Animator>();
+        animPlayer2.runtimeAnimatorController = animatorContHome;
+        animPlayer2.Play("Waving 2");
 
         // Enemy 1
         GameObject enemy1 = Instantiate(gameSettings.EnemyCharacter1, enemy1ModelHolder.transform);
         enemy1.transform.localPosition = new Vector3(0f, -1.04f, 0f);
         enemy1.transform.localRotation = Quaternion.identity;
         enemy1.transform.localScale = Vector3.one;
-        enemy1.GetComponent<Animator>().runtimeAnimatorController = animatorContAway;
+        Animator animEnemy1 = enemy1.GetComponent<Animator>();
+        animEnemy1.runtimeAnimatorController = animatorContHome;
+        animEnemy1.Play("Waving");
 
         // Enemy 2
         GameObject enemy2 = Instantiate(gameSettings.EnemyCharacter2, enemy2ModelHolder.transform);
         enemy2.transform.localPosition = new Vector3(0f, -1.04f, 0f);
         enemy2.transform.localRotation = Quaternion.identity;
         enemy2.transform.localScale = Vector3.one;
-        enemy2.GetComponent<Animator>().runtimeAnimatorController = animatorContAway;
+        Animator animEnemy2 = enemy2.GetComponent<Animator>();
+        animEnemy2.runtimeAnimatorController = animatorContHome;
+        animEnemy2.Play("Waving 2");
     }
 }

@@ -1,0 +1,64 @@
+using UnityEngine;
+using DG.Tweening;
+using UnityEngine.SceneManagement;
+using System.Collections;
+
+public class LoadActivationSceneLoader : MonoBehaviour
+{
+    [Header("Animation")]
+    public GameObject loadingScreen;
+
+    public float duration = 0.3f;
+    public float delayIfToHideNull = 0f;
+    public Ease easeOut = Ease.InBack;
+    public Ease easeIn = Ease.OutBack;
+
+    public int sceneIndex = 2;
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        EaseIn(sceneIndex);
+    }
+
+    public void EaseOut()
+    {
+        loadingScreen.transform.DOKill();
+
+        if (loadingScreen.transform.localScale == Vector3.zero)
+            loadingScreen.transform.localScale = Vector3.one;
+
+        loadingScreen.transform.DOScale(0f, duration).SetEase(easeOut).OnComplete(() =>
+        {
+            loadingScreen.gameObject.SetActive(false);
+        });
+    }
+
+    public float waitduration = 2;
+
+    public void EaseIn(int sceneIndex)
+    {
+        StartCoroutine(EaseInLoading(sceneIndex));
+    }
+
+    IEnumerator EaseInLoading(int sceneIndex)
+    {
+        yield return new WaitForSeconds(waitduration);
+        loadingScreen.gameObject.SetActive(true);
+        loadingScreen.transform.DOKill();
+        loadingScreen.transform.localScale = Vector3.zero;
+        loadingScreen.transform.DOScale(1f, duration).SetEase(easeIn).OnComplete(() =>
+        {
+            StartCoroutine(GoToNextSceneIndex(sceneIndex));
+        });
+    }
+
+    IEnumerator GoToNextSceneIndex(int index)
+    {
+        yield return new WaitForSeconds(waitduration);
+        AsyncOperation operation = SceneManager.LoadSceneAsync(index);
+        while (!operation.isDone)
+        {
+            yield return null;
+        }
+    }
+}
