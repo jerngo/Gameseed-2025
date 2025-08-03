@@ -4291,7 +4291,7 @@ GameObject:
   - component: {fileID: 790781173}
   - component: {fileID: 790781174}
   m_Layer: 5
-  m_Name: Pengu
+  m_Name: Cat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6710,7 +6710,7 @@ GameObject:
   - component: {fileID: 1144493700}
   - component: {fileID: 1144493701}
   m_Layer: 5
-  m_Name: Kattie
+  m_Name: Fox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6803,7 +6803,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selector: {fileID: 688791454}
   characterImageSource: {fileID: 1447089717}
-  character3DPrefab: {fileID: 4083469500785819179, guid: d48182458565c6443a2233fab50ea67d, type: 3}
+  character3DPrefab: {fileID: 2591149285299290297, guid: 4c0914fd5f6b5ab468f0682bd050d563, type: 3}
   characterID: 2
 --- !u!114 &1144493701
 MonoBehaviour:
@@ -9864,7 +9864,7 @@ GameObject:
   - component: {fileID: 1682513303}
   - component: {fileID: 1682513304}
   m_Layer: 5
-  m_Name: Nash
+  m_Name: Wolf
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9957,7 +9957,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selector: {fileID: 688791454}
   characterImageSource: {fileID: 1368044361}
-  character3DPrefab: {fileID: 4083469500785819179, guid: 75350bb281b23044c9e6f6df2cb25110, type: 3}
+  character3DPrefab: {fileID: 8692079813563435957, guid: fb066b6a5e7508944958250eae205006, type: 3}
   characterID: 0
 --- !u!114 &1682513304
 MonoBehaviour:
@@ -11905,7 +11905,7 @@ GameObject:
   - component: {fileID: 2099568370}
   - component: {fileID: 2099568371}
   m_Layer: 5
-  m_Name: Kruger
+  m_Name: Rabbit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11998,7 +11998,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selector: {fileID: 688791454}
   characterImageSource: {fileID: 1450158690}
-  character3DPrefab: {fileID: 4083469500785819179, guid: 57bd997273301604b8f78cffeb5e39fe, type: 3}
+  character3DPrefab: {fileID: 3066726078653893501, guid: 9917b94fb554e5346a947fb6f12c017b, type: 3}
   characterID: 1
 --- !u!114 &2099568371
 MonoBehaviour:
