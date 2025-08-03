@@ -102,6 +102,7 @@ public class GameRuleManager : MonoBehaviour
 
     IEnumerator InitGame(float duration, bool serveFromPlayer)
     {
+        DIsableHitMark();
         yield return new WaitForSeconds(duration); // tunggu 2 detik
 
         if (serveFromPlayer)
@@ -204,6 +205,7 @@ public class GameRuleManager : MonoBehaviour
 
     public void AddScore(PlayerType player, bool isIn = true) {
         bolaMasuk.Play();
+        DIsableHitMark();
         if (isIn)
         {
             crowdCheer.Play();
