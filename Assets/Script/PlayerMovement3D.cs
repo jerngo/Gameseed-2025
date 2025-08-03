@@ -367,6 +367,7 @@ public class PlayerMovement3D : MonoBehaviour
     void SmashBall(Transform ball)
     {
         smashSound.Play();
+        anim.SetTrigger("Spike");
 
         ballManager.arenaSide = "";
         playerSwitchManager.hitCount = 0;
@@ -512,6 +513,7 @@ public class PlayerMovement3D : MonoBehaviour
     void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
     {
         hitSound.Play();
+        anim.SetTrigger("Pass");
 
         ballManager.isServingBall = false;
 
@@ -717,15 +719,19 @@ public class PlayerMovement3D : MonoBehaviour
             return; // Selama dash aktif, abaikan kontrol biasa
         }
 
+        anim.SetBool("IsDashing", isDashing);
+
         // Gerakan
         Vector3 moveDir= new Vector3(0, 0, 0);
         if (IsGrounded())
         {
             moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
             lastGroundMoveDir = moveDir.magnitude > 0.1f ? moveDir : Vector3.zero;
+            anim.SetBool("IsGrounded", true);
         }
         else
         {
+            anim.SetBool("IsGrounded", false);
             //moveDir = lastGroundMoveDir * 0.2f;
         }
 
@@ -830,6 +836,7 @@ public class PlayerMovement3D : MonoBehaviour
 
         if (serveStage == 0)
         {
+            anim.SetTrigger("Serve");
             serveSOund.Play();
             // Lepaskan dari tangan dan lempar ke atas
             ballManager.ToggleTrail(false);
@@ -907,6 +914,7 @@ public class PlayerMovement3D : MonoBehaviour
     void PowerShootBall(Transform ball)
     {
         smashSound.Play();
+        anim.SetTrigger("Spike");
 
         slowMotionTimer = 0f;
         ballManager.arenaSide = "";

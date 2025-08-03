@@ -480,6 +480,7 @@ public class NPCMovement3D : MonoBehaviour
     {
         smashSound.Play();
         ballManager.arenaSide = "";
+        anim.SetTrigger("Spike");
         //enemySwitchManager.hitCount = 0;
         ballManager.LastSideToHitTheBall = ArenaSide;
         //enemySwitchManager.ReturnToSingleControl(this.gameObject);
@@ -620,6 +621,7 @@ public class NPCMovement3D : MonoBehaviour
     void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
     {
         hitSound.Play();
+        anim.SetTrigger("Pass");
 
         alreadyHitInAir = true;
         hasStartedAutoChase = false;
@@ -922,6 +924,7 @@ public class NPCMovement3D : MonoBehaviour
             //isAutoChasingBall = false;
         }
 
+        anim.SetBool("IsInAir", IsGrounded());
 
         if (isMovingToBall && IsGrounded())
         {
@@ -1035,6 +1038,7 @@ public class NPCMovement3D : MonoBehaviour
         yield return new WaitForSeconds(2);
         ballManager.ToggleTrail(false);
         serveSound.Play();
+        anim.SetTrigger("Serve");
         // Lepaskan dari tangan dan lempar ke atas
         enemySwitchManager.ball.SetParent(null);
         Rigidbody ballRb = enemySwitchManager.ball.GetComponent<Rigidbody>();
@@ -1114,6 +1118,8 @@ public class NPCMovement3D : MonoBehaviour
     void PowerShootBall(Transform ball)
     {
         slowMotionTimer = 0f;
+        anim.SetTrigger("Spike");
+
         ballManager.arenaSide = "";
         ballManager.LastSideToHitTheBall = ArenaSide;
         enemySwitchManager.hitCount = 0;
