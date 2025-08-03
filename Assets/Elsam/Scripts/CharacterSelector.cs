@@ -123,7 +123,7 @@ public class CharacterSelector : MonoBehaviour
         gameSettings.EnemyCharacter1 = remainingEnemies[0];
         gameSettings.EnemyCharacter2 = remainingEnemies[1];
 
-        StartCoroutine(GoToNextSceneIndex(2));
+        StartCoroutine(GoToNextSceneIndex(1));
     }
 
     IEnumerator GoToNextSceneIndex(int index) {
