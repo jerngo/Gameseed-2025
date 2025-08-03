@@ -4122,7 +4122,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &362371052
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4136,7 +4136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loadingScreen: {fileID: 2027454970}
-  duration: 0.3
+  duration: 1
   delayIfToHideNull: 0
   easeOut: 26
   easeIn: 27
@@ -22419,7 +22419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2027454971
 RectTransform:
   m_ObjectHideFlags: 0

@@ -16,4 +16,6 @@ public class GameSettings : ScriptableObject
     public GameObject Loser1;
     public GameObject Loser2;
 
+    public string winnerName = "Player";
+
 }

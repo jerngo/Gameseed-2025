@@ -31,8 +31,15 @@ public class EaseOutScript : MonoBehaviour
         });
     }
 
+    public float waitduration = 2;
+
     public void EaseIn(int sceneIndex)
     {
+        StartCoroutine(EaseInLoading(sceneIndex));
+    }
+
+    IEnumerator EaseInLoading(int sceneIndex) {
+        yield return new WaitForSeconds(waitduration);
         loadingScreen.gameObject.SetActive(true);
         loadingScreen.transform.DOKill();
         loadingScreen.transform.localScale = Vector3.zero;
@@ -44,6 +51,7 @@ public class EaseOutScript : MonoBehaviour
 
     IEnumerator GoToNextSceneIndex(int index)
     {
+        yield return new WaitForSeconds(waitduration);
         AsyncOperation operation = SceneManager.LoadSceneAsync(index);
         while (!operation.isDone)
         {

@@ -204,6 +204,7 @@ public class GameRuleManager : MonoBehaviour
                 gameSettings.Loser1 = gameSettings.EnemyCharacter1;
                 gameSettings.Loser2 = gameSettings.EnemyCharacter2;
 
+                gameSettings.winnerName = "Player";
 
                 loadingScript.EaseIn(3);
             }
@@ -221,6 +222,8 @@ public class GameRuleManager : MonoBehaviour
                 gameSettings.Loser2 = gameSettings.PlayerCharacter2;
                 gameSettings.Winner1 = gameSettings.EnemyCharacter1;
                 gameSettings.Winner2 = gameSettings.EnemyCharacter2;
+
+                gameSettings.winnerName = "Enemy";
 
                 loadingScript.EaseIn(3);
             }

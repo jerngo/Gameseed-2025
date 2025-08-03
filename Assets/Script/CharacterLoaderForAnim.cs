@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.Animations;
-
+using TMPro;
 public class CharacterLoaderForAnim : MonoBehaviour
 {
     public GameSettings gameSettings;
     public RuntimeAnimatorController animatorContWinner;
     public RuntimeAnimatorController animatorContLoser;
 
+    public TextMeshProUGUI captiontext;
 
     public GameObject winner1ModelHolder;
 
@@ -16,8 +17,19 @@ public class CharacterLoaderForAnim : MonoBehaviour
 
     public GameObject loser2ModelHolder;
 
+    public string textmenang = "YOU WIN";
+    public string textKalah = "YOU LOSE";
+
     private void Awake()
     {
+        if (gameSettings.winnerName == "Player")
+        {
+            captiontext.text = textmenang;
+        }
+        else {
+            captiontext.text = textKalah;
+        }
+
         // Player 1
         GameObject winner1 = Instantiate(gameSettings.Winner1, winner1ModelHolder.transform);
         winner1.transform.localPosition = new Vector3(0f, -1.04f, 0f);
@@ -30,7 +42,9 @@ public class CharacterLoaderForAnim : MonoBehaviour
         winner2.transform.localPosition = new Vector3(0f, -1.04f, 0f);
         winner2.transform.localRotation = Quaternion.identity;
         winner2.transform.localScale = Vector3.one;
-        winner2.GetComponent<Animator>().runtimeAnimatorController = animatorContWinner;
+        Animator animWinner2 = winner2.GetComponent<Animator>();
+        animWinner2.runtimeAnimatorController = animatorContWinner;
+        animWinner2.Play("Victory2");
 
         // Enemy 1
         GameObject loser1 = Instantiate(gameSettings.Loser1, loser1ModelHolder.transform);
@@ -44,6 +58,8 @@ public class CharacterLoaderForAnim : MonoBehaviour
         loser2.transform.localPosition = new Vector3(0f, -1.04f, 0f);
         loser2.transform.localRotation = Quaternion.identity;
         loser2.transform.localScale = Vector3.one;
-        loser2.GetComponent<Animator>().runtimeAnimatorController = animatorContLoser;
+        Animator animLoser2 = loser2.GetComponent<Animator>();
+        animLoser2.runtimeAnimatorController = animatorContLoser;
+        animLoser2.Play("Defeat2");
     }
 }
