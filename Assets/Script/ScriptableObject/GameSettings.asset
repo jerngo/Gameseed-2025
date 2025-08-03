@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62f4782370b251149b5d253c36108a6b, type: 3}
+  m_Name: GameSettings
+  m_EditorClassIdentifier: 
+  PlayerCharacter1: {fileID: 3109255494895797925, guid: 75793e6c39b6a504b8e9e754e3b8998b, type: 3}
+  PlayerCharacter2: {fileID: 8368043088206627766, guid: 3f8da8327338ca04e9c0f20e5ba26990, type: 3}
+  EnemyCharacter1: {fileID: 903482765612046863, guid: 1e873c20bde954c4f8e292b2814c0d1d, type: 3}
+  EnemyCharacter2: {fileID: 6412127829209677299, guid: 6633dc336a06ca14fa7515e8a9bf8f74, type: 3}
+  StageDetail: {fileID: 0}
+  Winner1: {fileID: 3109255494895797925, guid: 75793e6c39b6a504b8e9e754e3b8998b, type: 3}
+  Winner2: {fileID: 8368043088206627766, guid: 3f8da8327338ca04e9c0f20e5ba26990, type: 3}
+  Loser1: {fileID: 903482765612046863, guid: 1e873c20bde954c4f8e292b2814c0d1d, type: 3}
+  Loser2: {fileID: 6412127829209677299, guid: 6633dc336a06ca14fa7515e8a9bf8f74, type: 3}

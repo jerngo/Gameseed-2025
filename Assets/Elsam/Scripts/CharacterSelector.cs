@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class CharacterSelector : MonoBehaviour
 {
@@ -12,12 +15,18 @@ public class CharacterSelector : MonoBehaviour
     public Transform preview3DSlot2;
 
     private GameObject[] selectedCharacters = new GameObject[2];
+
+    private GameObject[] selectedPrefabCharacters = new GameObject[2];
+
     private Sprite[] selectedSprites = new Sprite[2];
     private GameObject[] character3DInstances = new GameObject[2];
 
     private int selectedSlot = 0;
 
-    public void SelectCharacter(GameObject character, Sprite characterSprite, GameObject character3DPrefab)
+    public GameSettings gameSettings;
+    public GameObject[] PrefabChar;
+
+    public void SelectCharacter(GameObject character, Sprite characterSprite, GameObject character3DPrefab, int characterId)
     {
         // Cek duplikasi
         if (selectedCharacters[0] == character)
@@ -34,6 +43,7 @@ public class CharacterSelector : MonoBehaviour
         // Simpan karakter
         selectedCharacters[selectedSlot] = character;
         selectedSprites[selectedSlot] = characterSprite;
+        selectedPrefabCharacters[selectedSlot] = PrefabChar[characterId];
 
         // Hapus preview lama jika ada
         if (character3DInstances[selectedSlot] != null)
@@ -65,6 +75,7 @@ public class CharacterSelector : MonoBehaviour
         (selectedSprites[0], selectedSprites[1]) = (selectedSprites[1], selectedSprites[0]);
         (character3DInstances[0], character3DInstances[1]) = (character3DInstances[1], character3DInstances[0]);
 
+        (selectedPrefabCharacters[0], selectedPrefabCharacters[1]) = (selectedPrefabCharacters[1], selectedPrefabCharacters[0]);
         // Pindahkan posisi 3D instance juga
         character3DInstances[0].transform.SetParent(preview3DSlot1, false);
         character3DInstances[1].transform.SetParent(preview3DSlot2, false);
@@ -87,5 +98,39 @@ public class CharacterSelector : MonoBehaviour
     public GameObject GetSelectedCharacter(int slot)
     {
         return selectedCharacters[slot];
+    }
+
+    public void ConfirmSelection() {
+        gameSettings.PlayerCharacter1 = selectedPrefabCharacters[0];
+        gameSettings.PlayerCharacter2 = selectedPrefabCharacters[1];
+
+        List<GameObject> remainingEnemies = new List<GameObject>();
+
+        foreach (GameObject prefab in PrefabChar)
+        {
+            if (prefab != selectedPrefabCharacters[0] && prefab != selectedPrefabCharacters[1])
+            {
+                remainingEnemies.Add(prefab);
+            }
+        }
+
+        if (remainingEnemies.Count < 2)
+        {
+            Debug.LogError("Tidak cukup karakter untuk musuh. Pastikan Player tidak memilih karakter yang sama.");
+            return;
+        }
+
+        gameSettings.EnemyCharacter1 = remainingEnemies[0];
+        gameSettings.EnemyCharacter2 = remainingEnemies[1];
+
+        StartCoroutine(GoToNextSceneIndex(2));
+    }
+
+    IEnumerator GoToNextSceneIndex(int index) {
+        AsyncOperation operation = SceneManager.LoadSceneAsync(index);
+        while (!operation.isDone)
+        {
+            yield return null;
+        }
     }
 }

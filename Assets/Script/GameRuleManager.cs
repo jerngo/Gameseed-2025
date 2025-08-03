@@ -63,6 +63,10 @@ public class GameRuleManager : MonoBehaviour
     public RawImage enemypower2;
     public RawImage enemypower3;
 
+    public EaseOutScript loadingScript;
+    public int winScore=21;
+
+    public GameSettings gameSettings;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -70,7 +74,7 @@ public class GameRuleManager : MonoBehaviour
         enemyswitchManager = FindFirstObjectByType<NPCManager>();
         ballbounce = FindFirstObjectByType<BallBounce>();
 
-        StartCoroutine(InitGame(1f, false));
+        StartCoroutine(InitGame(2f, false));
     }
 
     private void Awake()
@@ -193,13 +197,36 @@ public class GameRuleManager : MonoBehaviour
         if (player == PlayerType.Player1) {
             playerScore++;
             scorePlayertext.text = playerScore.ToString();
-            StartCoroutine(InitGame(2,true));
+            if (playerScore >= winScore)
+            {
+                gameSettings.Winner1 = gameSettings.PlayerCharacter1;
+                gameSettings.Winner2 = gameSettings.PlayerCharacter2;
+                gameSettings.Loser1 = gameSettings.EnemyCharacter1;
+                gameSettings.Loser2 = gameSettings.EnemyCharacter2;
+
+
+                loadingScript.EaseIn(3);
+            }
+            else { 
+                StartCoroutine(InitGame(2,true));
+            }
         }
         else if (player == PlayerType.Player2)
         {
             enemyScore++;
             scoreEnemytext.text = enemyScore.ToString();
-            StartCoroutine(InitGame(2,false));
+            if (enemyScore >= winScore)
+            {
+                gameSettings.Loser1 = gameSettings.PlayerCharacter1;
+                gameSettings.Loser2 = gameSettings.PlayerCharacter2;
+                gameSettings.Winner1 = gameSettings.EnemyCharacter1;
+                gameSettings.Winner2 = gameSettings.EnemyCharacter2;
+
+                loadingScript.EaseIn(3);
+            }
+            else { 
+                StartCoroutine(InitGame(2,false));
+            }
         }
     }
 

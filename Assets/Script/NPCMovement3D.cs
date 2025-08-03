@@ -1033,7 +1033,7 @@ public class NPCMovement3D : MonoBehaviour
 
     IEnumerator WaitBeforeToss() {
         yield return new WaitForSeconds(2);
-
+        ballManager.ToggleTrail(false);
         serveSound.Play();
         // Lepaskan dari tangan dan lempar ke atas
         enemySwitchManager.ball.SetParent(null);
@@ -1060,6 +1060,7 @@ public class NPCMovement3D : MonoBehaviour
         gamerulemanager.isServingRound = false;
         ballManager.isServingBall = false;
         serveStage = 0;
+        ballManager.ToggleTrail(true);
     }
 
     void PassBallInPlace()

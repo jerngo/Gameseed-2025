@@ -12,11 +12,12 @@ public class CharacterClick : MonoBehaviour, IPointerClickHandler
     [Tooltip("Prefab karakter 3D untuk preview")]
     public GameObject character3DPrefab;
 
+    public int characterID;
     public void OnPointerClick(PointerEventData eventData)
     {
         if (selector != null && characterImageSource != null && character3DPrefab != null)
         {
-            selector.SelectCharacter(gameObject, characterImageSource.sprite, character3DPrefab);
+            selector.SelectCharacter(gameObject, characterImageSource.sprite, character3DPrefab, characterID);
         }
     }
 }
