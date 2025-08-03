@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 6ef0eea4e1ae792478256b75de54fd07
+guid: 8ff46664b2268f543a7099c24b02e4b8
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,8 +7,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Lapangan
-    second: {fileID: 2100000, guid: c3ddc0c2c6035e74f8fb31f8e21ffc1f, type: 2}
+      name: Pagar
+    second: {fileID: 2100000, guid: 699f012f412af1341a8e62f14af48782, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
