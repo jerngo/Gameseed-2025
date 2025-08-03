@@ -345,6 +345,23 @@ public class NPCMovement3D : MonoBehaviour
                 //isAutoChasingBall = false;
             }
         }
+
+        if (IsGrounded())
+        {
+            if (anim != null)
+                anim.SetBool("IsGrounded", true);
+        }
+        else
+        {
+            if (anim != null)
+                anim.SetBool("IsGrounded", false);
+            float verticalVelocity = rb.linearVelocity.y;
+
+            // Cek arah vertikal
+            bool isFalling = verticalVelocity < -0.1f;
+            if (anim != null)
+                anim.SetBool("IsFalling", isFalling);
+        }
     }
 
     private bool isMovingToBall = false;
@@ -480,7 +497,8 @@ public class NPCMovement3D : MonoBehaviour
     {
         smashSound.Play();
         ballManager.arenaSide = "";
-        anim.SetTrigger("Spike");
+        if (anim != null)
+            anim.SetTrigger("Spike");
         //enemySwitchManager.hitCount = 0;
         ballManager.LastSideToHitTheBall = ArenaSide;
         //enemySwitchManager.ReturnToSingleControl(this.gameObject);
@@ -621,7 +639,8 @@ public class NPCMovement3D : MonoBehaviour
     void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
     {
         hitSound.Play();
-        anim.SetTrigger("Pass");
+        if (anim != null)
+            anim.SetTrigger("Pass");
 
         alreadyHitInAir = true;
         hasStartedAutoChase = false;
@@ -849,11 +868,15 @@ public class NPCMovement3D : MonoBehaviour
         if (IsGrounded())
         {
             bool hasStartedAutoChase=false;
+            if (anim != null)
+                anim.SetBool("IsGrounded", true);
             //moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
             //lastGroundMoveDir = moveDir.magnitude > 0.1f ? moveDir : Vector3.zero;
         }
         else
         {
+            if (anim != null)
+                anim.SetBool("IsGrounded", false);
             //moveDir = lastGroundMoveDir * 0.2f;
         }
 
@@ -924,7 +947,7 @@ public class NPCMovement3D : MonoBehaviour
             //isAutoChasingBall = false;
         }
 
-        anim.SetBool("IsInAir", IsGrounded());
+        
 
         if (isMovingToBall && IsGrounded())
         {
@@ -1038,7 +1061,8 @@ public class NPCMovement3D : MonoBehaviour
         yield return new WaitForSeconds(2);
         ballManager.ToggleTrail(false);
         serveSound.Play();
-        anim.SetTrigger("Serve");
+        if (anim != null)
+            anim.SetTrigger("Serve");
         // Lepaskan dari tangan dan lempar ke atas
         enemySwitchManager.ball.SetParent(null);
         Rigidbody ballRb = enemySwitchManager.ball.GetComponent<Rigidbody>();
@@ -1118,7 +1142,8 @@ public class NPCMovement3D : MonoBehaviour
     void PowerShootBall(Transform ball)
     {
         slowMotionTimer = 0f;
-        anim.SetTrigger("Spike");
+        if (anim != null)
+            anim.SetTrigger("Spike");
 
         ballManager.arenaSide = "";
         ballManager.LastSideToHitTheBall = ArenaSide;

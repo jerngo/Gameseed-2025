@@ -125,6 +125,10 @@ public class PlayerMovement3D : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         lastGroundMoveDir = Vector3.zero;
+        if (anim != null)
+        {
+            anim.SetFloat("Speed", 0);
+        }
     }
 
     public void TeleChartoDefaultPos() {
@@ -320,13 +324,38 @@ public class PlayerMovement3D : MonoBehaviour
             {
                 isJumping = false;
                 hasHitDuringJump = false;
+                //anim.SetBool("IsGrounded", true);
             }
 
             if (IsGrounded() && isAutoChasingBall)
             {
                 //isAutoChasingBall = false;
+                //anim.SetBool("IsGrounded", false);
             }
         }
+
+        if (IsGrounded())
+        {
+            if (anim != null) { 
+                anim.SetBool("IsGrounded", true);
+            }
+        }
+
+        else
+        {
+            if (anim != null) { 
+                anim.SetBool("IsGrounded", false);
+            }
+            float verticalVelocity = rb.linearVelocity.y;
+
+            // Cek arah vertikal
+            bool isFalling = verticalVelocity < -0.1f;
+
+            if (anim != null) { 
+                anim.SetBool("IsFalling", isFalling);
+            }
+        }
+
     }
 
     void OnTriggerStay(Collider other)
@@ -367,7 +396,9 @@ public class PlayerMovement3D : MonoBehaviour
     void SmashBall(Transform ball)
     {
         smashSound.Play();
-        anim.SetTrigger("Spike");
+        if (anim != null) { 
+            anim.SetTrigger("Spike");
+        }
 
         ballManager.arenaSide = "";
         playerSwitchManager.hitCount = 0;
@@ -466,13 +497,16 @@ public class PlayerMovement3D : MonoBehaviour
         Collider[] balls = Physics.OverlapSphere(transform.position, 10f, ballLayer);
         if (balls.Length == 0)
         {
-            // Dash biasa
-            Vector3 dashDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
-            if (dashDir.magnitude < 0.1f) dashDir = transform.forward;
+            // Aktifkan mode dash ke bola
+            Debug.Log("🏃 Dash otomatis ke bola");
+            isDashingToBall = true;
+            dashBallTarget = this.gameObject.transform;
+            dashTime = maxDashTime;
+            if (anim != null) { 
+                anim.SetTrigger("Dash");
+            }
 
             jumpSound.Play();
-            rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
-            Debug.Log("🟡 Dash biasa (tanpa bola)");
             return;
         }
 
@@ -505,6 +539,11 @@ public class PlayerMovement3D : MonoBehaviour
                 isDashingToBall = true;
                 dashBallTarget = ball;
                 dashTime = maxDashTime;
+                if (anim != null) { 
+                    anim.SetTrigger("Dash");
+                }
+
+                jumpSound.Play();
             }
         }
     }
@@ -513,7 +552,9 @@ public class PlayerMovement3D : MonoBehaviour
     void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
     {
         hitSound.Play();
-        anim.SetTrigger("Pass");
+        if (anim != null) { 
+            anim.SetTrigger("Pass");
+        }
 
         ballManager.isServingBall = false;
 
@@ -669,9 +710,15 @@ public class PlayerMovement3D : MonoBehaviour
             if (dashTimer <= 0f)
             {
                 isDashing = false;
+                if (anim != null) { 
+                    anim.SetBool("IsDashing", false);
+                }
             }
             else
             {
+                if (anim != null) { 
+                    anim.SetBool("IsDashing", true);
+                }
                 rb.linearVelocity = dashDirection * dashForce + new Vector3(0, rb.linearVelocity.y, 0);
 
                 // Cek apakah saat dash mengenai bola → langsung pass
@@ -719,7 +766,7 @@ public class PlayerMovement3D : MonoBehaviour
             return; // Selama dash aktif, abaikan kontrol biasa
         }
 
-        anim.SetBool("IsDashing", isDashing);
+        
 
         // Gerakan
         Vector3 moveDir= new Vector3(0, 0, 0);
@@ -727,11 +774,11 @@ public class PlayerMovement3D : MonoBehaviour
         {
             moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
             lastGroundMoveDir = moveDir.magnitude > 0.1f ? moveDir : Vector3.zero;
-            anim.SetBool("IsGrounded", true);
+
         }
         else
         {
-            anim.SetBool("IsGrounded", false);
+
             //moveDir = lastGroundMoveDir * 0.2f;
         }
 
@@ -836,7 +883,9 @@ public class PlayerMovement3D : MonoBehaviour
 
         if (serveStage == 0)
         {
-            anim.SetTrigger("Serve");
+            if (anim != null) { 
+                anim.SetTrigger("Serve");
+            }
             serveSOund.Play();
             // Lepaskan dari tangan dan lempar ke atas
             ballManager.ToggleTrail(false);
@@ -914,7 +963,9 @@ public class PlayerMovement3D : MonoBehaviour
     void PowerShootBall(Transform ball)
     {
         smashSound.Play();
-        anim.SetTrigger("Spike");
+        if (anim != null) { 
+            anim.SetTrigger("Spike");
+        }
 
         slowMotionTimer = 0f;
         ballManager.arenaSide = "";
