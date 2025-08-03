@@ -3548,7 +3548,8 @@ MonoBehaviour:
   - {fileID: 8692079813563435957, guid: 23968cddd6c13dd4d8bc2280af286b4d, type: 3}
   - {fileID: 3066726078653893501, guid: 089a7cd6fd1c9d541ac7ffb076d5bef5, type: 3}
   - {fileID: 2591149285299290297, guid: 67910cef6f2afb04fab60c5a2b118846, type: 3}
-  - {fileID: 8368043088206627766, guid: 3f8da8327338ca04e9c0f20e5ba26990, type: 3}
+  - {fileID: 2513163628981036053, guid: f4394502f5cf0e04ba5cedf69a32e430, type: 3}
+  blackloading: {fileID: 1657025363}
   indexScene: 1
   loadingDuration: 2
 --- !u!4 &688791455
@@ -4384,7 +4385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selector: {fileID: 688791454}
   characterImageSource: {fileID: 1466674733}
-  character3DPrefab: {fileID: 4083469500785819179, guid: 125205349580f004b9c73cf7cf9d9537, type: 3}
+  character3DPrefab: {fileID: 2513163628981036053, guid: 6ab874f99500c2f49ba9083b813f1c67, type: 3}
   characterID: 3
 --- !u!114 &790781174
 MonoBehaviour:
@@ -9097,30 +9098,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1657025363}
-        m_TargetAssemblyTypeName: UIToggle, Assembly-CSharp
-        m_MethodName: Toggle
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1657025363}
-        m_TargetAssemblyTypeName: UIToggle, Assembly-CSharp
-        m_MethodName: ToggleWithSwap
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 1200341137}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play

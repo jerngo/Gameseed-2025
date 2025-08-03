@@ -26,6 +26,9 @@ public class CharacterSelector : MonoBehaviour
     public GameSettings gameSettings;
     public GameObject[] PrefabChar;
 
+    public UIToggle blackloading;
+
+
     public void SelectCharacter(GameObject character, Sprite characterSprite, GameObject character3DPrefab, int characterId)
     {
         // Cek duplikasi
@@ -104,6 +107,10 @@ public class CharacterSelector : MonoBehaviour
     public float loadingDuration = 2;
 
     public void ConfirmSelection() {
+        if (selectedCharacters[0] == null || selectedCharacters[1] == null) {
+            return;
+        }
+
         gameSettings.PlayerCharacter1 = selectedPrefabCharacters[0];
         gameSettings.PlayerCharacter2 = selectedPrefabCharacters[1];
 
@@ -125,6 +132,9 @@ public class CharacterSelector : MonoBehaviour
 
         gameSettings.EnemyCharacter1 = remainingEnemies[0];
         gameSettings.EnemyCharacter2 = remainingEnemies[1];
+
+        blackloading.Toggle();
+        blackloading.ToggleWithSwap(false);
 
         StartCoroutine(GoToNextSceneIndex(indexScene));
     }

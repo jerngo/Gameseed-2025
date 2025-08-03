@@ -207,6 +207,8 @@ public class GameRuleManager : MonoBehaviour
 
                 gameSettings.winnerName = "Player";
                 ShowGameEndCaption();
+                suarapluit.Play();
+                
                 loadingScript.EaseIn(3);
             }
             else { 
@@ -226,6 +228,7 @@ public class GameRuleManager : MonoBehaviour
 
                 gameSettings.winnerName = "Enemy";
                 ShowGameEndCaption();
+                suarapluit.Play();
                 loadingScript.EaseIn(3);
             }
             else { 
