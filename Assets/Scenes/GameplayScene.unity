@@ -7789,7 +7789,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 36b400ab431b2674ca4eaa2bdde09718, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: bcab0ff7d952d0446af2a16f20264d22, type: 2}
+      objectReference: {fileID: 9100000, guid: 0360dfa627208314ca864324bf11ec79, type: 2}
     - target: {fileID: 5866666021909216657, guid: 36b400ab431b2674ca4eaa2bdde09718, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -11104,7 +11104,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 36b400ab431b2674ca4eaa2bdde09718, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: bcab0ff7d952d0446af2a16f20264d22, type: 2}
+      objectReference: {fileID: 9100000, guid: 0360dfa627208314ca864324bf11ec79, type: 2}
     - target: {fileID: 5866666021909216657, guid: 36b400ab431b2674ca4eaa2bdde09718, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -12617,7 +12617,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 36b400ab431b2674ca4eaa2bdde09718, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: bcab0ff7d952d0446af2a16f20264d22, type: 2}
+      objectReference: {fileID: 9100000, guid: 0360dfa627208314ca864324bf11ec79, type: 2}
     - target: {fileID: 5866666021909216657, guid: 36b400ab431b2674ca4eaa2bdde09718, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -15508,7 +15508,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 36b400ab431b2674ca4eaa2bdde09718, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: bcab0ff7d952d0446af2a16f20264d22, type: 2}
+      objectReference: {fileID: 9100000, guid: 0360dfa627208314ca864324bf11ec79, type: 2}
     - target: {fileID: 5866666021909216657, guid: 36b400ab431b2674ca4eaa2bdde09718, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0

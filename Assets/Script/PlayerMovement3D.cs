@@ -285,6 +285,31 @@ public class PlayerMovement3D : MonoBehaviour
 
     void Update()
     {
+        if (IsGrounded())
+        {
+            if (anim != null)
+            {
+                anim.SetBool("IsGrounded", true);
+            }
+        }
+
+        else
+        {
+            if (anim != null)
+            {
+                anim.SetBool("IsGrounded", false);
+            }
+            float verticalVelocity = rb.linearVelocity.y;
+
+            // Cek arah vertikal
+            bool isFalling = verticalVelocity < -0.1f;
+
+            if (anim != null)
+            {
+                anim.SetBool("IsFalling", isFalling);
+            }
+        }
+
         if (isInSlowMotion)
         {
             slowMotionTimer -= Time.unscaledDeltaTime;
@@ -334,27 +359,7 @@ public class PlayerMovement3D : MonoBehaviour
             }
         }
 
-        if (IsGrounded())
-        {
-            if (anim != null) { 
-                anim.SetBool("IsGrounded", true);
-            }
-        }
-
-        else
-        {
-            if (anim != null) { 
-                anim.SetBool("IsGrounded", false);
-            }
-            float verticalVelocity = rb.linearVelocity.y;
-
-            // Cek arah vertikal
-            bool isFalling = verticalVelocity < -0.1f;
-
-            if (anim != null) { 
-                anim.SetBool("IsFalling", isFalling);
-            }
-        }
+       
 
     }
 
@@ -398,6 +403,7 @@ public class PlayerMovement3D : MonoBehaviour
         smashSound.Play();
         if (anim != null) { 
             anim.SetTrigger("Spike");
+            anim.Play("Armature_Spike");
         }
 
         ballManager.arenaSide = "";
@@ -504,6 +510,7 @@ public class PlayerMovement3D : MonoBehaviour
             dashTime = maxDashTime;
             if (anim != null) { 
                 anim.SetTrigger("Dash");
+                anim.Play("Armature_Dash");
             }
 
             jumpSound.Play();
@@ -541,6 +548,7 @@ public class PlayerMovement3D : MonoBehaviour
                 dashTime = maxDashTime;
                 if (anim != null) { 
                     anim.SetTrigger("Dash");
+                    anim.Play("Armature_Dash");
                 }
 
                 jumpSound.Play();
@@ -554,6 +562,7 @@ public class PlayerMovement3D : MonoBehaviour
         hitSound.Play();
         if (anim != null) { 
             anim.SetTrigger("Pass");
+            anim.Play("Armature_Pass");
         }
 
         ballManager.isServingBall = false;
@@ -607,6 +616,31 @@ public class PlayerMovement3D : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (IsGrounded())
+        {
+            if (anim != null)
+            {
+                anim.SetBool("IsGrounded", true);
+            }
+        }
+
+        else
+        {
+            if (anim != null)
+            {
+                anim.SetBool("IsGrounded", false);
+            }
+            float verticalVelocity = rb.linearVelocity.y;
+
+            // Cek arah vertikal
+            bool isFalling = verticalVelocity < -0.1f;
+
+            if (anim != null)
+            {
+                anim.SetBool("IsFalling", isFalling);
+            }
+        }
+
         if (!isControlled)
         {
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
@@ -885,6 +919,7 @@ public class PlayerMovement3D : MonoBehaviour
         {
             if (anim != null) { 
                 anim.SetTrigger("Serve");
+                anim.Play("Armature_Serve");
             }
             serveSOund.Play();
             // Lepaskan dari tangan dan lempar ke atas
@@ -963,7 +998,8 @@ public class PlayerMovement3D : MonoBehaviour
     void PowerShootBall(Transform ball)
     {
         smashSound.Play();
-        if (anim != null) { 
+        if (anim != null) {
+            anim.Play("Armature_Spike");
             anim.SetTrigger("Spike");
         }
 

@@ -100,6 +100,9 @@ public class CharacterSelector : MonoBehaviour
         return selectedCharacters[slot];
     }
 
+    public int indexScene = 1;
+    public float loadingDuration = 2;
+
     public void ConfirmSelection() {
         gameSettings.PlayerCharacter1 = selectedPrefabCharacters[0];
         gameSettings.PlayerCharacter2 = selectedPrefabCharacters[1];
@@ -123,10 +126,11 @@ public class CharacterSelector : MonoBehaviour
         gameSettings.EnemyCharacter1 = remainingEnemies[0];
         gameSettings.EnemyCharacter2 = remainingEnemies[1];
 
-        StartCoroutine(GoToNextSceneIndex(1));
+        StartCoroutine(GoToNextSceneIndex(indexScene));
     }
 
     IEnumerator GoToNextSceneIndex(int index) {
+        yield return new WaitForSeconds(loadingDuration);
         AsyncOperation operation = SceneManager.LoadSceneAsync(index);
         while (!operation.isDone)
         {

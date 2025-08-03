@@ -293,6 +293,29 @@ public class NPCMovement3D : MonoBehaviour
 
     void Update()
     {
+        if (IsGrounded())
+        {
+            if (anim != null)
+            {
+                anim.SetBool("IsGrounded", true);
+            }
+        }
+        else
+        {
+            if (anim != null)
+            {
+                anim.SetBool("IsGrounded", false);
+            }
+            float verticalVelocity = rb.linearVelocity.y;
+
+            // Cek arah vertikal
+            bool isFalling = verticalVelocity < -0.1f;
+            if (anim != null)
+            {
+                anim.SetBool("IsFalling", isFalling);
+            }
+        }
+
         if (isInSlowMotion)
         {
             slowMotionTimer -= Time.unscaledDeltaTime;
@@ -346,22 +369,7 @@ public class NPCMovement3D : MonoBehaviour
             }
         }
 
-        if (IsGrounded())
-        {
-            if (anim != null)
-                anim.SetBool("IsGrounded", true);
-        }
-        else
-        {
-            if (anim != null)
-                anim.SetBool("IsGrounded", false);
-            float verticalVelocity = rb.linearVelocity.y;
-
-            // Cek arah vertikal
-            bool isFalling = verticalVelocity < -0.1f;
-            if (anim != null)
-                anim.SetBool("IsFalling", isFalling);
-        }
+        
     }
 
     private bool isMovingToBall = false;
@@ -497,8 +505,10 @@ public class NPCMovement3D : MonoBehaviour
     {
         smashSound.Play();
         ballManager.arenaSide = "";
-        if (anim != null)
+        if (anim != null) { 
             anim.SetTrigger("Spike");
+            anim.Play("Armature_Spike");
+        }
         //enemySwitchManager.hitCount = 0;
         ballManager.LastSideToHitTheBall = ArenaSide;
         //enemySwitchManager.ReturnToSingleControl(this.gameObject);
@@ -639,8 +649,10 @@ public class NPCMovement3D : MonoBehaviour
     void LaunchBallToTarget(Transform ball, Vector3 target, float baseArcHeight)
     {
         hitSound.Play();
-        if (anim != null)
+        if (anim != null) { 
             anim.SetTrigger("Pass");
+            anim.Play("Armature_Pass");
+        }
 
         alreadyHitInAir = true;
         hasStartedAutoChase = false;
@@ -695,6 +707,29 @@ public class NPCMovement3D : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (IsGrounded())
+        {
+            if (anim != null)
+            {
+                anim.SetBool("IsGrounded", true);
+            }
+        }
+        else
+        {
+            if (anim != null)
+            {
+                anim.SetBool("IsGrounded", false);
+            }
+            float verticalVelocity = rb.linearVelocity.y;
+
+            // Cek arah vertikal
+            bool isFalling = verticalVelocity < -0.1f;
+            if (anim != null)
+            {
+                anim.SetBool("IsFalling", isFalling);
+            }
+        }
+
         if (!isControlled)
         {
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
@@ -868,15 +903,17 @@ public class NPCMovement3D : MonoBehaviour
         if (IsGrounded())
         {
             bool hasStartedAutoChase=false;
-            if (anim != null)
+            if (anim != null) { 
                 anim.SetBool("IsGrounded", true);
+            }
             //moveDir = new Vector3(-moveInput.x, 0, -moveInput.y).normalized;
             //lastGroundMoveDir = moveDir.magnitude > 0.1f ? moveDir : Vector3.zero;
         }
         else
         {
-            if (anim != null)
+            if (anim != null) { 
                 anim.SetBool("IsGrounded", false);
+            }
             //moveDir = lastGroundMoveDir * 0.2f;
         }
 
@@ -1061,8 +1098,10 @@ public class NPCMovement3D : MonoBehaviour
         yield return new WaitForSeconds(2);
         ballManager.ToggleTrail(false);
         serveSound.Play();
-        if (anim != null)
+        if (anim != null) { 
             anim.SetTrigger("Serve");
+            anim.Play("Armature_Serve");
+        }
         // Lepaskan dari tangan dan lempar ke atas
         enemySwitchManager.ball.SetParent(null);
         Rigidbody ballRb = enemySwitchManager.ball.GetComponent<Rigidbody>();
@@ -1142,8 +1181,10 @@ public class NPCMovement3D : MonoBehaviour
     void PowerShootBall(Transform ball)
     {
         slowMotionTimer = 0f;
-        if (anim != null)
+        if (anim != null) { 
             anim.SetTrigger("Spike");
+            anim.Play("Armature_Spike");
+        }
 
         ballManager.arenaSide = "";
         ballManager.LastSideToHitTheBall = ArenaSide;
