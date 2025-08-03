@@ -75,7 +75,7 @@ public class GameRuleManager : MonoBehaviour
         enemyswitchManager = FindFirstObjectByType<NPCManager>();
         ballbounce = FindFirstObjectByType<BallBounce>();
 
-        StartCoroutine(InitGame(2f, false));
+        StartCoroutine(InitGame(2f, true));
     }
 
     private void Awake()
@@ -163,7 +163,7 @@ public class GameRuleManager : MonoBehaviour
         enemyFrontline.GetComponent<NPCMovement3D>().TeleChartoDefaultPos();
 
         playerBackline.GetComponent<PlayerMovement3D>().isControlled = true;
-        playerFrontline.GetComponent<PlayerMovement3D>().isControlled = false;
+        playerFrontline.GetComponent<PlayerMovement3D>().isControlled = true;
 
         barrierServe.SetActive(true);
 
