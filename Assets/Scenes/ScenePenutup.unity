@@ -8618,8 +8618,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90b51c52167e0b3478196885e02c803e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  captionText: {fileID: 0}
-  floatSpeed: 1
+  captionText: {fileID: 927635713}
+  floatSpeed: 12
   floatAmplitude: 10
 --- !u!1001 &929103027
 PrefabInstance:
