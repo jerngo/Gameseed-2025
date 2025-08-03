@@ -139,7 +139,15 @@ public class NPCMovement3D : MonoBehaviour
 
     public void TeleChartoDefaultPos()
     {
+        StopAllCoroutines(); // optional: matikan semua Coroutine aktif
         Vector3 targetPos = DefaultPosition.position;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true; // nonaktifkan physics sementara
+        }
+
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
@@ -149,12 +157,20 @@ public class NPCMovement3D : MonoBehaviour
 
         transform.position = newPos;
         modelTransform.forward = Vector3.right;
-        rb.isKinematic = false;
+        StartCoroutine(ReenablePhysicsNextFrame());
     }
 
     public void TeleChartoHere(Transform target)
     {
+        StopAllCoroutines(); // optional: matikan semua Coroutine aktif
         Vector3 targetPos = target.position;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true; // nonaktifkan physics sementara
+        }
+
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
@@ -164,7 +180,16 @@ public class NPCMovement3D : MonoBehaviour
 
         transform.position = newPos;
         modelTransform.forward = Vector3.right;
-        rb.isKinematic = false;
+        StartCoroutine(ReenablePhysicsNextFrame());
+    }
+
+    private IEnumerator ReenablePhysicsNextFrame()
+    {
+        yield return new WaitForFixedUpdate(); // tunggu physics frame berikutnya
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+        }
     }
 
     private bool CanReceiveInput()
