@@ -8506,15 +8506,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: YOU WIN
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f3f7ecf8947a0be4e9891cc6a2199fe5, type: 2}
-  m_sharedMaterial: {fileID: 8997675427163125998, guid: f3f7ecf8947a0be4e9891cc6a2199fe5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7535c3ca774785846bdcb2fe043766d2, type: 2}
+  m_sharedMaterial: {fileID: 8997675427163125998, guid: 7535c3ca774785846bdcb2fe043766d2, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4291356401
-  m_fontColor: {r: 0.94509804, g: 0.9019608, b: 0.78431374, a: 1}
+    rgba: 4281452799
+  m_fontColor: {r: 1, g: 0.78359413, b: 0.19339621, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -13329,7 +13329,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1352772963
 RectTransform:
   m_ObjectHideFlags: 0
