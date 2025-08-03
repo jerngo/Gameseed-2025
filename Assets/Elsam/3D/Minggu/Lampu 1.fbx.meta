@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 6ef0eea4e1ae792478256b75de54fd07
+guid: ae4ef4aa35b252849a1c80b91e986f81
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,8 +7,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Lapangan
-    second: {fileID: 2100000, guid: c3ddc0c2c6035e74f8fb31f8e21ffc1f, type: 2}
+      name: Black
+    second: {fileID: 2100000, guid: 65d74a417abeb004e95c2365044127d2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Lampu
+    second: {fileID: 2100000, guid: c39c78a38815eb94b84eac9f6d6f9f4c, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

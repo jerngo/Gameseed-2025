@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: 6ef0eea4e1ae792478256b75de54fd07
+guid: 8e54d0a4f7388704784c27b272cb084b
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Lapangan
-    second: {fileID: 2100000, guid: c3ddc0c2c6035e74f8fb31f8e21ffc1f, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
