@@ -52,6 +52,9 @@ public class GameRuleManager : MonoBehaviour
     public AudioSource bolaMasuk;
     public AudioSource powerUp;
 
+    public AudioSource crowdCheer;
+    public AudioSource crowdDissapoint;
+
     public RawImage playerpower1;
     public RawImage playerpower2;
     public RawImage playerpower3;
@@ -177,8 +180,16 @@ public class GameRuleManager : MonoBehaviour
         }
     }
 
-    public void AddScore(PlayerType player) {
+    public void AddScore(PlayerType player, bool isIn = true) {
         bolaMasuk.Play();
+        if (isIn)
+        {
+            crowdCheer.Play();
+        }
+        else {
+            crowdDissapoint.Play();
+        }
+
         if (player == PlayerType.Player1) {
             playerScore++;
             scorePlayertext.text = playerScore.ToString();

@@ -43,12 +43,12 @@ public class ArenaTileDetector : MonoBehaviour
                     {
                         if (ball.LastSideToHitTheBall == "Player")
                         {
-                            gameRuleManager.AddScore(ball.enemySide);
+                            gameRuleManager.AddScore(ball.enemySide, false);
                             ball.isAlreadyScored = true;
                         }
                         else
                         {
-                            gameRuleManager.AddScore(ball.playerSide);
+                            gameRuleManager.AddScore(ball.playerSide, false);
                             ball.isAlreadyScored = true;
                         }
                     }

@@ -845,6 +845,7 @@ public class PlayerMovement3D : MonoBehaviour
         }
         else
         {
+            jumpSound.Play();
             ballManager.ToggleTrail(true);
             // Pukul ke arah lawan
             hitPressed = true;
