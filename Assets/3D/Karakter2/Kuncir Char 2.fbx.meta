@@ -1,0 +1,241 @@
+fileFormatVersion: 2
+guid: ede11a3f6f68ba544811698283152b14
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Kuncir bake
+    second: {fileID: 2100000, guid: 772ae1c302e207548a932cc0ccc7bada, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 3
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human:
+    - boneName: Armature
+      humanName: Hips
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Bone.001
+      humanName: Spine
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Bone.002
+      humanName: Chest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Bone.004
+      humanName: RightShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Bone.005
+      humanName: RightUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Bone.006
+      humanName: RightLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Bone.007
+      humanName: RightHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Bone.003
+      humanName: UpperChest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    skeleton:
+    - name: Kuncir Char 2(Clone)
+      parentName: 
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Armature
+      parentName: Kuncir Char 2(Clone)
+      position: {x: 0.0000000144355, y: 1.5523697, z: -0.18964417}
+      rotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
+      scale: {x: 100, y: 100, z: 100}
+    - name: Bone
+      parentName: Armature
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0.029091686, y: -0, z: -1.0291406e-15, w: 0.99957675}
+      scale: {x: 1, y: 1, z: 0.99999994}
+    - name: Bone.001
+      parentName: Bone
+      position: {x: 1.8456467e-25, y: 0.0010725111, z: 0}
+      rotation: {x: 0.4919288, y: 5.216139e-16, z: 9.645352e-16, w: 0.87063545}
+      scale: {x: 1, y: 0.9999999, z: 0.9999999}
+    - name: Bone.002
+      parentName: Bone.001
+      position: {x: -3.1019273e-25, y: 0.0010162549, z: -7.4505804e-11}
+      rotation: {x: -0.0034812684, y: -1.148333e-17, z: -1.456256e-17, w: 0.9999939}
+      scale: {x: 1, y: 1.0000002, z: 1.0000002}
+    - name: Bone.003
+      parentName: Bone.002
+      position: {x: 9.926167e-26, y: 0.001079911, z: -1.11758706e-10}
+      rotation: {x: 0.022793747, y: -8.618212e-18, z: -1.1249896e-16, w: 0.9997402}
+      scale: {x: 1, y: 1.0000001, z: 1.0000002}
+    - name: Bone.004
+      parentName: Bone.003
+      position: {x: -6.514047e-26, y: 0.0014684708, z: -7.4505804e-11}
+      rotation: {x: 0.3153603, y: 0.2398059, z: 0.55576426, w: -0.7308674}
+      scale: {x: 1, y: 1.0000005, z: 1.0000004}
+    - name: Bone.005
+      parentName: Bone.004
+      position: {x: -8.2718056e-26, y: 0.0018487837, z: -1.3038516e-10}
+      rotation: {x: -0.029775515, y: -0.048230857, z: -0.12649551, w: 0.9903465}
+      scale: {x: 1, y: 0.9999998, z: 0.99999994}
+    - name: Bone.006
+      parentName: Bone.005
+      position: {x: 1.323489e-25, y: 0.0021630903, z: -1.4901161e-10}
+      rotation: {x: 0.029278602, y: -0.000000119158194, z: -0.0000000034902956, w: 0.9995713}
+      scale: {x: 1, y: 1.0000002, z: 1.0000002}
+    - name: Bone.007
+      parentName: Bone.006
+      position: {x: -3.225128e-17, y: 0.0017815356, z: 0}
+      rotation: {x: 0.14455068, y: 0.0015835841, z: 0.010261724, w: 0.989443}
+      scale: {x: 1, y: 0.9999998, z: 1}
+    - name: Bone.008
+      parentName: Bone.007
+      position: {x: -5.855758e-17, y: 0.0012022832, z: -1.11758706e-10}
+      rotation: {x: 0.46766365, y: 3.5118016e-15, z: -0.00000011149971, w: 0.8839066}
+      scale: {x: 1, y: 0.9999998, z: 0.99999994}
+    - name: Bone.008_end
+      parentName: Bone.008
+      position: {x: -0, y: 0.0007521377, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Kuncir.bake
+      parentName: Kuncir Char 2(Clone)
+      position: {x: 0.0000000144355, y: 1.5523697, z: -0.18964417}
+      rotation: {x: -0.70710677, y: 0, z: -0, w: 0.7071068}
+      scale: {x: 110, y: 110, z: 110}
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 3
+  humanoidOversampling: 1
+  avatarSetup: 1
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
